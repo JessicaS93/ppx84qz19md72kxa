@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#f5f5f7",
   "theme_color": "#d10072",
-  "description": "Calculadora diaria con captura continua, validación inmediata y modo oscuro automático.",
+  "description": "Calculadora diaria con imagen compartible sin costo unitario.",
   "icons": [
     {
       "src": "./icon-192.png",

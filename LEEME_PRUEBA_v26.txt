@@ -1,0 +1,22 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.6
+
+NUEVA FUNCIÓN
+- Botón Compartir proyección.
+- Vista previa de la imagen.
+- Incluye fecha, File, cantidad, total por File y total del día.
+- No incluye costo unitario.
+- Permite compartir mediante el menú del iPhone.
+- Incluye opción Guardar imagen.
+
+PRUEBAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Validaciones estáticas aprobadas.
+- Cache actualizado a v2.6.
+
+PENDIENTE
+- Subir al repositorio.
+- Probar compartir desde Safari en iPhone.
+- Confirmar legibilidad con muchos Files.
+
+Continúa siendo un archivo de prueba.

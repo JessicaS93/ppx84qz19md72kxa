@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v2.5</title>
+<title>Proyección Diaria — Archivo de prueba v2.6</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -88,10 +88,28 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   .sticky-total{background:rgba(28,28,30,.94);border-color:rgba(255,255,255,.08)}
   .notice{border-color:#665c2a}
 }
+
+.share-btn{width:100%;margin-top:14px;background:#1c1c1e;color:#fff}
+.share-sheet{position:fixed;inset:0;z-index:140;display:none;align-items:flex-end;background:rgba(0,0,0,.45)}
+.share-sheet.open{display:flex}
+.share-panel{width:100%;max-height:92vh;overflow:auto;background:var(--card);border-radius:26px 26px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.22)}
+.share-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
+.share-head h3{margin:0;font-size:22px}
+.share-close{width:38px;height:38px;border-radius:50%;border:0;background:var(--line);color:var(--text);font-size:22px}
+.share-preview{background:#fff;border-radius:18px;padding:18px;color:#111;box-shadow:inset 0 0 0 1px #00000012}
+.share-preview-title{font-size:24px;font-weight:800;margin:0}
+.share-preview-date{margin-top:4px;font-size:14px;color:#666}
+.share-preview-table{width:100%;border-collapse:collapse;margin-top:18px}
+.share-preview-table th,.share-preview-table td{padding:10px 4px;border-bottom:1px solid #e5e5e5;text-align:left;font-size:14px}
+.share-preview-table th:last-child,.share-preview-table td:last-child{text-align:right}
+.share-preview-total{display:flex;justify-content:space-between;gap:10px;margin-top:18px;padding-top:14px;border-top:2px solid #111;font-size:22px;font-weight:800}
+.share-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.share-note{margin:12px 2px 0;font-size:12px;color:var(--muted)}
+@media(prefers-color-scheme:dark){.share-btn{background:#f5f5f7;color:#111}.share-close{background:#3a3a3c}}
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.5</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.6</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -104,7 +122,8 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   <div id="progressText" class="progress-text">Preparando…</div>
 </div><div id="status" class="status ok"></div></section>
 <section class="card capture-card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div class="capture-status"><div id="selectedCost" class="status"></div><div class="capture-hint">Enter agrega y continúa</div></div></section>
-<section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div></section>
+<section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div>
+<button type="button" id="openShare" class="primary share-btn">Compartir proyección</button></section>
 <p class="note">Los costos y cálculos conservan todos los decimales disponibles; no se redondean internamente. La captura diaria se elimina al cerrar o recargar.</p>
 </main><div id="stickyTotal" class="sticky-total hidden" aria-live="polite"><div><div class="sticky-total-label">TOTAL DEL DÍA</div><div id="stickyTotalValue" class="sticky-total-value">$0.00</div></div><button id="closeKeyboard" type="button" class="btn secondary" style="padding:10px 14px">Listo</button></div>
 <div id="editBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
@@ -540,6 +559,90 @@ async function parseExcel(file,onProgress=()=>{}){
   };
 }
 $('fileName').textContent=INITIAL_NAME;$('status').textContent=state.catalog.size+' Files incluidos. '+INITIAL_IGNORED+' filas rojas ignoradas. Puedes reemplazar el Excel cuando cambien o agreguen costos.';
+
+function projectionDateText(){
+  return new Intl.DateTimeFormat('es-MX',{day:'2-digit',month:'long',year:'numeric'}).format(new Date());
+}
+function projectionRows(){
+  return [...state.entries.values()].map(x=>({file:String(x.file),qty:String(x.qty),amount:x.amount}));
+}
+function renderSharePreview(){
+  const rows=projectionRows();
+  const total=rows.reduce((acc,x)=>add(acc,x.amount),D(0));
+  $('sharePreview').innerHTML='<h4 class="share-preview-title">Proyección del día</h4>'+
+    '<div class="share-preview-date">'+esc(projectionDateText())+'</div>'+
+    '<table class="share-preview-table"><thead><tr><th>File</th><th>Cantidad</th><th>Total</th></tr></thead><tbody>'+
+    rows.map(x=>'<tr><td>'+esc(x.file)+'</td><td>'+esc(x.qty)+'</td><td>'+money(x.amount)+'</td></tr>').join('')+
+    '</tbody></table><div class="share-preview-total"><span>Total del día</span><span>'+money(total)+'</span></div>';
+}
+function openShareSheet(){
+  if(!state.entries.size){showTopToast('No hay Files capturados');return}
+  renderSharePreview();
+  $('shareSheet').classList.add('open');
+  $('shareSheet').setAttribute('aria-hidden','false');
+}
+function closeShareSheet(){
+  $('shareSheet').classList.remove('open');
+  $('shareSheet').setAttribute('aria-hidden','true');
+}
+function drawRoundRect(ctx,x,y,w,h,r){
+  ctx.beginPath();
+  ctx.moveTo(x+r,y);ctx.lineTo(x+w-r,y);ctx.quadraticCurveTo(x+w,y,x+w,y+r);
+  ctx.lineTo(x+w,y+h-r);ctx.quadraticCurveTo(x+w,y+h,x+w-r,y+h);
+  ctx.lineTo(x+r,y+h);ctx.quadraticCurveTo(x,y+h,x,y+h-r);
+  ctx.lineTo(x,y+r);ctx.quadraticCurveTo(x,y,x+r,y);ctx.closePath();
+}
+async function buildProjectionImage(){
+  const rows=projectionRows();
+  const width=1080,rowH=72,height=Math.max(1080,470+rows.length*rowH);
+  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#f3f3f5';ctx.fillRect(0,0,width,height);
+  ctx.fillStyle='#fff';drawRoundRect(ctx,55,55,width-110,height-110,38);ctx.fill();
+  ctx.fillStyle='#111';ctx.font='700 58px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText('Proyección del día',100,145);
+  ctx.fillStyle='#666';ctx.font='400 30px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText(projectionDateText(),100,195);
+  ctx.fillStyle='#777';ctx.font='700 28px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.textAlign='left';ctx.fillText('FILE',100,275);ctx.fillText('CANTIDAD',560,275);ctx.textAlign='right';ctx.fillText('TOTAL',930,275);
+  let y=335;
+  ctx.font='600 32px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  rows.forEach(x=>{
+    ctx.strokeStyle='#e4e4e7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,y+30);ctx.lineTo(930,y+30);ctx.stroke();
+    ctx.fillStyle='#111';ctx.textAlign='left';ctx.fillText(x.file,100,y);ctx.fillText(x.qty,560,y);ctx.textAlign='right';ctx.fillText(money(x.amount),930,y);y+=rowH;
+  });
+  const total=rows.reduce((acc,x)=>add(acc,x.amount),D(0));
+  const totalY=Math.min(height-160,y+55);
+  ctx.strokeStyle='#111';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(100,totalY-50);ctx.lineTo(930,totalY-50);ctx.stroke();
+  ctx.fillStyle='#111';ctx.textAlign='left';ctx.font='700 40px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText('TOTAL DEL DÍA',100,totalY);
+  ctx.textAlign='right';ctx.font='800 58px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText(money(total),930,totalY+5);
+  return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('No se pudo crear la imagen')),'image/png',1));
+}
+async function shareProjectionImage(){
+  try{
+    const blob=await buildProjectionImage();
+    const file=new File([blob],'proyeccion-'+new Date().toISOString().slice(0,10)+'.png',{type:'image/png'});
+    if(navigator.canShare&&navigator.canShare({files:[file]})){
+      await navigator.share({title:'Proyección del día',text:'Proyección del día',files:[file]});
+    }else{
+      const url=URL.createObjectURL(blob),a=document.createElement('a');
+      a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1200);
+      showTopToast('✓ Imagen guardada');
+    }
+  }catch(e){if(e&&e.name==='AbortError')return;showTopToast('No se pudo compartir')}
+}
+async function saveProjectionImage(){
+  try{
+    const blob=await buildProjectionImage(),url=URL.createObjectURL(blob),a=document.createElement('a');
+    a.href=url;a.download='proyeccion-'+new Date().toISOString().slice(0,10)+'.png';a.click();
+    setTimeout(()=>URL.revokeObjectURL(url),1200);showTopToast('✓ Imagen guardada');
+  }catch(e){showTopToast('No se pudo guardar')}
+}
+
+
+$('openShare').addEventListener('click',openShareSheet);
+$('closeShare').addEventListener('click',closeShareSheet);
+$('shareImage').addEventListener('click',shareProjectionImage);
+$('saveImage').addEventListener('click',saveProjectionImage);
+$('shareSheet').addEventListener('click',e=>{if(e.target===$('shareSheet'))closeShareSheet()});
 $('upload').addEventListener('click',()=>{$('excelInput').click()});
 $('excelInput').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];
@@ -675,4 +778,17 @@ if('serviceWorker' in navigator){
 }
 render();
 })();
-</script></body></html>
+</script>
+<div id="shareSheet" class="share-sheet" aria-hidden="true">
+  <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="share-head"><h3 id="shareTitle">Vista para compartir</h3><button type="button" id="closeShare" class="share-close">×</button></div>
+    <div id="sharePreview" class="share-preview"></div>
+    <div class="share-actions">
+      <button type="button" id="shareImage" class="primary">Compartir imagen</button>
+      <button type="button" id="saveImage" class="secondary">Guardar imagen</button>
+    </div>
+    <p class="share-note">La imagen no incluye el costo unitario.</p>
+  </div>
+</div>
+
+</body></html>
