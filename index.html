@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v2.6</title>
+<title>Proyección Diaria — Archivo de prueba v2.7</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -109,7 +109,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.6</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.7</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -147,6 +147,17 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   </div>
 </section>
 
+<div id="shareSheet" class="share-sheet" aria-hidden="true">
+  <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
+    <div class="share-head"><h3 id="shareTitle">Vista para compartir</h3><button type="button" id="closeShare" class="share-close">×</button></div>
+    <div id="sharePreview" class="share-preview"></div>
+    <div class="share-actions">
+      <button type="button" id="shareImage" class="primary">Compartir imagen</button>
+      <button type="button" id="saveImage" class="secondary">Guardar imagen</button>
+    </div>
+    <p class="share-note">La imagen no incluye el costo unitario.</p>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
 <script>
 (()=>{'use strict';
@@ -638,11 +649,12 @@ async function saveProjectionImage(){
 }
 
 
-$('openShare').addEventListener('click',openShareSheet);
-$('closeShare').addEventListener('click',closeShareSheet);
-$('shareImage').addEventListener('click',shareProjectionImage);
-$('saveImage').addEventListener('click',saveProjectionImage);
-$('shareSheet').addEventListener('click',e=>{if(e.target===$('shareSheet'))closeShareSheet()});
+const openShareEl=$('openShare'),closeShareEl=$('closeShare'),shareImageEl=$('shareImage'),saveImageEl=$('saveImage'),shareSheetEl=$('shareSheet');
+if(openShareEl)openShareEl.addEventListener('click',openShareSheet);
+if(closeShareEl)closeShareEl.addEventListener('click',closeShareSheet);
+if(shareImageEl)shareImageEl.addEventListener('click',shareProjectionImage);
+if(saveImageEl)saveImageEl.addEventListener('click',saveProjectionImage);
+if(shareSheetEl)shareSheetEl.addEventListener('click',e=>{if(e.target===shareSheetEl)closeShareSheet()});
 $('upload').addEventListener('click',()=>{$('excelInput').click()});
 $('excelInput').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];
@@ -778,17 +790,4 @@ if('serviceWorker' in navigator){
 }
 render();
 })();
-</script>
-<div id="shareSheet" class="share-sheet" aria-hidden="true">
-  <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
-    <div class="share-head"><h3 id="shareTitle">Vista para compartir</h3><button type="button" id="closeShare" class="share-close">×</button></div>
-    <div id="sharePreview" class="share-preview"></div>
-    <div class="share-actions">
-      <button type="button" id="shareImage" class="primary">Compartir imagen</button>
-      <button type="button" id="saveImage" class="secondary">Guardar imagen</button>
-    </div>
-    <p class="share-note">La imagen no incluye el costo unitario.</p>
-  </div>
-</div>
-
-</body></html>
+</script></body></html>

@@ -1,0 +1,27 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.7
+
+CORRECCIÓN
+- Se corrigió el botón Subir o reemplazar Excel.
+- La causa era el orden de carga de la nueva ventana Compartir proyección.
+- La ventana ahora existe antes de conectar sus botones.
+- Se agregaron validaciones defensivas para que una función opcional no detenga la carga del Excel.
+
+SE CONSERVA
+- Generación de imagen con fecha, File, cantidad, total por File y total del día.
+- La imagen no muestra costo unitario.
+- Captura, acumulación, edición y eliminación.
+- Precisión completa de cálculos.
+
+PRUEBAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Orden de elementos verificado.
+- Evento del botón Subir Excel verificado.
+- Elementos de compartir verificados antes de enlazar eventos.
+- Cache actualizado a v2.7.
+
+PENDIENTE
+- Reemplazar la v2.6 en GitHub por esta v2.7.
+- Probar el selector de Excel y la imagen compartible en Safari del iPhone.
+
+Continúa siendo un archivo de prueba.
