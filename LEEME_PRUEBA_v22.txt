@@ -1,0 +1,30 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.2
+
+CAMBIOS PROGRAMADOS
+- El catálogo de costos se guarda localmente en el dispositivo.
+- Al volver a abrir la aplicación se restaura el último catálogo válido.
+- La producción diaria no se guarda y siempre inicia vacía.
+- Se agregó botón para borrar el catálogo guardado.
+- Se agregó pantalla de información del catálogo.
+- La información muestra Files vigentes, filas rojas, duplicados y fecha de guardado.
+- Al cargar un Excel nuevo, el catálogo guardado se reemplaza.
+- Si el almacenamiento local no está disponible, la aplicación continúa funcionando sin persistencia.
+
+PRUEBAS EJECUTADAS
+- Sintaxis JavaScript de la aplicación: aprobada.
+- Sintaxis del Service Worker: aprobada.
+- Serialización de catálogo: aprobada.
+- Restauración de catálogo: aprobada.
+- Eliminación del catálogo: aprobada.
+- Confirmación de que las capturas diarias no se serializan: aprobada.
+- Manejo de almacenamiento inválido: aprobado.
+- Cache de aplicación actualizado a v2.2.
+
+PENDIENTE
+- Publicar en GitHub Pages.
+- Probar restauración del catálogo después de cerrar Safari en el iPhone.
+- Confirmar que las cantidades diarias aparezcan vacías al volver a abrir.
+- Probar el botón Borrar catálogo guardado en Safari.
+- Corregir cualquier incompatibilidad específica encontrada.
+
+Este archivo continúa siendo de prueba; no es definitivo.

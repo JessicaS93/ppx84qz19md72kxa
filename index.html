@@ -1,0 +1,565 @@
+<!doctype html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover,user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="theme-color" content="#f5f5f7">
+<meta name="apple-mobile-web-app-title" content="Proyección Diaria">
+<meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
+<title>Proyección Diaria — Archivo de prueba v2.2</title>
+<meta name="theme-color" content="#d10072">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<meta name="apple-mobile-web-app-title" content="Proyección">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+:root{--bg:#f5f5f7;--card:#fff;--text:#1d1d1f;--muted:#6e6e73;--blue:#3478f6;--line:#d2d2d7;--danger:#ff3b30;--warn:#fff4cf}
+*{box-sizing:border-box}body{margin:0;background:var(--bg);color:var(--text);font-family:-apple-system,BlinkMacSystemFont,"SF Pro Display","SF Pro Text",system-ui,sans-serif;-webkit-font-smoothing:antialiased}
+main{max-width:760px;margin:0 auto;padding:calc(env(safe-area-inset-top) + 22px) 16px calc(env(safe-area-inset-bottom) + 42px)}
+h1{font-size:36px;line-height:1.06;margin:0 0 16px;letter-spacing:-1px}.card{background:#fff;border-radius:22px;padding:18px;box-shadow:0 1px 1px #00000008,0 8px 24px #0000000a;margin-bottom:14px}
+.notice{background:var(--warn);border:1px solid #ead37a;font-size:14px;line-height:1.4}.notice strong{display:block;margin-bottom:4px}
+.total-card{text-align:center;padding:25px 18px}.eyebrow{font-size:13px;font-weight:800;letter-spacing:.08em;color:var(--muted);text-transform:uppercase}.total{font-size:52px;font-weight:800;letter-spacing:-2px;margin:9px 0;overflow-wrap:anywhere}.words{font-size:14px;line-height:1.45;color:var(--muted);font-weight:700;text-transform:uppercase}
+h2{font-size:21px;margin:0 0 15px}label{display:block;font-size:14px;font-weight:700;color:var(--muted);margin-bottom:7px}.field{width:100%;border:1px solid var(--line);border-radius:15px;font-size:18px;padding:14px;color:var(--text);outline:none;background:#fff}.field:focus{border-color:var(--blue);box-shadow:0 0 0 3px #3478f620}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.btn{width:100%;border:0;border-radius:15px;padding:15px 16px;font-size:17px;font-weight:750;cursor:pointer;-webkit-tap-highlight-color:transparent}.btn:active{transform:scale(.99)}.primary{background:var(--blue);color:#fff}.secondary{background:#e9e9ed;color:var(--text)}.danger{background:#ffe9e7;color:#b42318}.btn:disabled{opacity:.4}
+.file-name{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:14px;overflow-wrap:anywhere}.status{font-size:13px;color:var(--muted);margin-top:9px}.status.ok{color:#248a3d}.status.warning{background:#fff7ed;color:#9a3412;border-color:#fed7aa}.status.error{color:#b42318}
+.suggestions{display:none;position:absolute;z-index:5;left:0;right:0;top:78px;background:#fff;border:1px solid var(--line);border-radius:14px;max-height:220px;overflow:auto;box-shadow:0 10px 30px #0002}.search-wrap{position:relative}.suggestion{display:block;width:100%;padding:13px 14px;border:0;border-bottom:1px solid #ededf0;background:#fff;text-align:left;font:inherit;font-size:16px;color:inherit;-webkit-tap-highlight-color:transparent}.suggestion:last-child{border:0}.suggestion:active{background:#f2f2f7}
+.rows{display:flex;flex-direction:column;gap:10px}.empty{text-align:center;color:var(--muted);padding:18px}.row{border:1px solid #e4e4e8;border-radius:16px;padding:13px;display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px}.row-file{font-size:18px;font-weight:800}.detail{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px;color:var(--muted);margin-top:4px;overflow-wrap:anywhere}.amount{font-size:18px;font-weight:800;text-align:right}.actions{display:flex;gap:7px;margin-top:9px}.mini{border:0;border-radius:9px;padding:8px 10px;font-weight:700}.hidden{display:none!important}
+.sheet-backdrop{position:fixed;inset:0;background:#0007;display:flex;align-items:flex-end;justify-content:center;padding:16px;z-index:50}
+.sheet{width:min(100%,560px);background:#fff;border-radius:24px;padding:20px;box-shadow:0 20px 70px #0005;margin-bottom:max(0px,env(safe-area-inset-bottom))}
+.sheet h3{font-size:22px;margin:0 0 6px}.sheet p{margin:0 0 16px;color:var(--muted)}
+.sheet-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
+.toast{position:fixed;left:50%;bottom:calc(env(safe-area-inset-bottom) + 18px);transform:translateX(-50%) translateY(20px);background:#1d1d1f;color:#fff;padding:11px 16px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:.2s;z-index:70;max-width:calc(100% - 32px);text-align:center}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}.note{font-size:12px;line-height:1.45;color:var(--muted)}
+@media(max-width:480px){.grid{grid-template-columns:1fr}.total{font-size:44px}h1{font-size:34px}}
+
+.progress-wrap{margin-top:12px}
+.progress-track{height:10px;background:#ececf1;border-radius:999px;overflow:hidden}
+.progress-bar{height:100%;width:0;background:#d10072;transition:width .2s ease}
+.progress-text{margin-top:7px;font-size:13px;color:var(--muted)}
+</style>
+</head>
+<body><main>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.2</div>
+<section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
+<section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
+<div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+  <button id="forgetCatalog" type="button" class="btn secondary">Borrar catálogo guardado</button>
+  <button id="catalogInfo" type="button" class="btn secondary">Ver información</button>
+</div>
+
+<div id="progressWrap" class="progress-wrap hidden" aria-live="polite">
+  <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
+  <div id="progressText" class="progress-text">Preparando…</div>
+</div><div id="status" class="status ok"></div></section>
+<section class="card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div id="selectedCost" class="status"></div></section>
+<section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div></section>
+<p class="note">Los costos y cálculos conservan todos los decimales disponibles; no se redondean internamente. La captura diaria se elimina al cerrar o recargar.</p>
+</main>
+<div id="editBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
+  <div class="sheet">
+    <h3 id="editTitle">Editar cantidad</h3>
+    <p id="editFile"></p>
+    <label for="editQty">Nueva cantidad</label>
+    <input id="editQty" class="field" inputmode="decimal" autocomplete="off">
+    <div class="sheet-actions">
+      <button id="cancelEdit" type="button" class="btn secondary">Cancelar</button>
+      <button id="saveEdit" type="button" class="btn primary">Guardar</button>
+    </div>
+  </div>
+</div>
+<div id="toast" class="toast" role="status" aria-live="polite"></div><section class="card" style="margin-top:14px">
+  <h2 style="font-size:18px;margin:0 0 10px">Estado de la aplicación</h2>
+  <div id="appStatus" class="status">Comprobando compatibilidad…</div>
+  <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
+    <a class="btn secondary" href="diagnostico.html" style="text-decoration:none;text-align:center">Diagnóstico</a>
+    <button id="installHelp" type="button" class="btn secondary">Instalar en iPhone</button>
+  </div>
+</section>
+
+<script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
+<script>
+(()=>{'use strict';
+const INITIAL=[{"file":"22021","cost":"0.095"},{"file":"55438","cost":"0.135"},{"file":"78720","cost":"0.047"},{"file":"95100","cost":"0.135"},{"file":"10216","cost":"0.1"},{"file":"60090","cost":"0.265"},{"file":"55432","cost":"0.135"},{"file":"10233","cost":"0.1"},{"file":"52206","cost":"0.318"},{"file":"55436","cost":"0.135"},{"file":"55440","cost":"0.135"},{"file":"55443","cost":"0.135"},{"file":"96619","cost":"0.135"},{"file":"55439","cost":"0.135"},{"file":"55442","cost":"0.135"},{"file":"89367","cost":"0.05"},{"file":"10235","cost":"0.1"},{"file":"55382","cost":"0.135"},{"file":"55444","cost":"0.135"},{"file":"15113","cost":"0.1"},{"file":"10221","cost":"0.1"},{"file":"8407","cost":"0.105"},{"file":"8406","cost":"0.105"},{"file":"22517","cost":"0.05"},{"file":"8006","cost":"0.105"},{"file":"22453","cost":"0.095"},{"file":"44829","cost":"0.05"},{"file":"55435","cost":"0.135"},{"file":"55433","cost":"0.135"},{"file":"46907","cost":"0.15"},{"file":"69607","cost":"0.05"},{"file":"84860","cost":"0.5"},{"file":"37928","cost":"0.075"},{"file":"78797","cost":"0.1"},{"file":"7295","cost":"0.1"},{"file":"7297","cost":"0.1"},{"file":"26118","cost":"0.01"},{"file":"47818","cost":"0.047"},{"file":"66205","cost":"1.1"},{"file":"66204","cost":"1.1"},{"file":"73855","cost":"1.66"},{"file":"25124","cost":"1.25"},{"file":"72486","cost":"0.1"},{"file":"72497","cost":"0.1"},{"file":"72501","cost":"0.1"},{"file":"19498","cost":"0.5"},{"file":"18886","cost":"0.1"},{"file":"79817","cost":"0.115"},{"file":"79366","cost":"0.15"},{"file":"79367","cost":"0.5"},{"file":"76843","cost":"0.1"},{"file":"26527","cost":"0.111"},{"file":"26520","cost":"0.111"},{"file":"84602","cost":"0.111"},{"file":"52723","cost":"0.083"},{"file":"76846","cost":"0.1"},{"file":"89707","cost":"0.1"},{"file":"53533","cost":"0.4"},{"file":"45368","cost":"0.02"},{"file":"1060","cost":"0.66"},{"file":"47153","cost":"0.66"},{"file":"2231","cost":"0.111"},{"file":"16545","cost":"0.15"},{"file":"37489","cost":"0.66"},{"file":"37510","cost":"0.66"},{"file":"51427","cost":"0.5"}]; const INITIAL_NAME="Control_Reportes_Danhil_Consolidado_V3(1).xlsx"; const INITIAL_IGNORED=4;
+const $=id=>document.getElementById(id); const state={catalog:new Map(INITIAL.map(x=>[String(x.file),x])),entries:new Map(),selected:null};
+function norm(v){return String(v??'').trim().toUpperCase()}
+function expandScientific(v){let s=String(v??'').trim();if(!/[eE]/.test(s))return s;let m=s.match(/^([+-]?)(\d+)(?:\.(\d*))?[eE]([+-]?\d+)$/);if(!m)return s;let sign=m[1],digits=m[2]+(m[3]||''),dec=m[2].length+Number(m[4]);if(dec<=0)return sign+'0.'+'0'.repeat(-dec)+digits;if(dec>=digits.length)return sign+digits+'0'.repeat(dec-digits.length);return sign+digits.slice(0,dec)+'.'+digits.slice(dec)}
+function clean(v){return expandScientific(String(v??'').replace(/[$,\s]/g,''))}
+function excelNumber(v){let s=clean(v);if(!s)return s;let n=Number(s);if(!Number.isFinite(n))return s;let r=n.toPrecision(15);r=expandScientific(r);if(r.includes('.'))r=r.replace(/0+$/,'').replace(/\.$/,'');return r}
+function parts(v){let s=clean(v);if(!/^[-+]?\d*(?:\.\d*)?$/.test(s)||!/[0-9]/.test(s))throw Error('Número inválido');let neg=s[0]==='-';s=s.replace(/^[-+]/,'');let [i='0',f='']=s.split('.');i=(i||'0').replace(/^0+(?=\d)/,'');f=f.replace(/0+$/,'');return{neg,i,f}}
+function add(a,b){let A=parts(a),B=parts(b),sc=Math.max(A.f.length,B.f.length),to=o=>BigInt(o.i+o.f.padEnd(sc,'0'))*(o.neg?-1n:1n),z=to(A)+to(B),neg=z<0n;if(neg)z=-z;let r=z.toString().padStart(sc+1,'0'),i=sc?r.slice(0,-sc):r,f=sc?r.slice(-sc).replace(/0+$/,''):'';return(neg?'-':'')+i+(f?'.'+f:'')}
+function mul(a,b){let A=parts(a),B=parts(b),sc=A.f.length+B.f.length,z=BigInt(A.i+A.f)*BigInt(B.i+B.f),r=z.toString().padStart(sc+1,'0'),i=sc?r.slice(0,-sc):r,f=sc?r.slice(-sc).replace(/0+$/,''):'';return(A.neg!==B.neg&&z!==0n?'-':'')+i+(f?'.'+f:'')}
+function money(v){let p=parts(v);return(p.neg?'-$':'$')+p.i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(p.f?'.'+p.f:'')}
+const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
+function n100(n){if(n<30)return u[n];let d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'][Math.floor(n/10)];return n%10?d+' y '+u[n%10]:d}function n1000(n){if(n<100)return n100(n);if(n===100)return'cien';let h=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'][Math.floor(n/100)];return n%100?h+' '+n100(n%100):h}
+function intWords(n){n=BigInt(n);if(n===0n)return'cero';let g=[];while(n){g.push(Number(n%1000n));n/=1000n}let out=[];for(let i=g.length-1;i>=0;i--){let x=g[i];if(!x)continue;if(i===0)out.push(n1000(x));else if(i===1)out.push(x===1?'mil':n1000(x)+' mil');else if(i===2)out.push(x===1?'un millón':n1000(x)+' millones');else if(i===3)out.push(x===1?'mil millones':n1000(x)+' mil millones');else if(i===4)out.push(x===1?'un billón':n1000(x)+' billones');}return out.join(' ')}
+function words(v){let p=parts(v),w=(p.neg?'menos ':'')+intWords(p.i);if(p.f)w+=' punto '+p.f.split('').map(x=>u[+x]).join(' ');w+=' '+(p.i==='1'&&!p.f?'peso':'pesos');return w.toUpperCase()}
+function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
+let editingFile=null,toastTimer=null;
+function showToast(message){
+  const el=$('toast');
+  el.textContent=message;
+  el.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>el.classList.remove('show'),1800);
+}
+function validPositiveQuantity(value){
+  const q=clean(value),p=parts(q);
+  if(p.neg||/^0(?:\.0*)?$/.test(q))throw Error('La cantidad debe ser mayor que cero.');
+  return q;
+}
+function openEdit(file){
+  const entry=state.entries.get(file);
+  if(!entry)return;
+  editingFile=file;
+  $('editFile').textContent='File '+file;
+  $('editQty').value=entry.qty;
+  $('editBackdrop').classList.remove('hidden');
+  document.body.classList.add('modal-open');
+  setTimeout(()=>{$('editQty').focus();$('editQty').select()},30);
+}
+function closeEdit(){
+  editingFile=null;
+  $('editBackdrop').classList.add('hidden');
+  document.body.classList.remove('modal-open');
+}
+function saveEdit(){
+  if(!editingFile)return;
+  try{
+    const q=validPositiveQuantity($('editQty').value);
+    const entry=state.entries.get(editingFile);
+    if(!entry){closeEdit();return}
+    entry.qty=q;
+    entry.amount=mul(entry.cost,q);
+    closeEdit();
+    render();
+    showToast('Cantidad actualizada');
+  }catch(err){
+    alert(err.message||'Cantidad inválida');
+  }
+}
+function select(file){
+  const x=state.catalog.get(file);
+  if(!x)return;
+  state.selected=x;
+  $('fileSearch').value=file;
+  $('suggestions').style.display='none';
+  $('selectedCost').textContent='Costo exacto: '+x.cost;
+  setTimeout(()=>$('qty').focus(),20);
+}
+function selectTypedFile(){
+  const typed=$('fileSearch').value.trim();
+  if(!typed)return false;
+
+  const exact=state.catalog.get(typed)||
+    [...state.catalog.values()].find(v=>norm(v.file)===norm(typed));
+
+  if(exact){
+    select(exact.file);
+    return true;
+  }
+
+  const matches=[...state.catalog.keys()].filter(k=>norm(k).includes(norm(typed)));
+  if(matches.length===1){
+    select(matches[0]);
+    return true;
+  }
+
+  if(matches.length>1){
+    suggestions();
+    showToast('Selecciona un File de la lista');
+  }else{
+    showToast('File no encontrado');
+  }
+  return false;
+}
+function suggestions(){let q=norm($('fileSearch').value);state.selected=null;$('selectedCost').textContent='';if(!q){$('suggestions').style.display='none';return}let a=[...state.catalog.keys()].filter(k=>norm(k).includes(q)).slice(0,30);if(!a.length){$('suggestions').style.display='none';return}$('suggestions').innerHTML=a.map(k=>'<button type="button" class="suggestion" role="option" data-file="'+esc(k)+'">'+esc(k)+'</button>').join('');$('suggestions').style.display='block'}
+function addEntry(){if(!ensureCatalogLoaded())return;let typed=$('fileSearch').value.trim(),x=state.catalog.get(typed)||[...state.catalog.values()].find(v=>norm(v.file)===norm(typed));if(!x){alert('Escribe o selecciona un File válido.');return}let q;try{q=validPositiveQuantity($('qty').value)}catch(e){alert(e.message||'Captura una cantidad válida.');return}let old=state.entries.get(x.file),newQ=old?add(old.qty,q):q;state.entries.set(x.file,{file:x.file,cost:x.cost,qty:newQ,amount:mul(x.cost,newQ)});$('fileSearch').value='';$('qty').value='';$('selectedCost').textContent='';state.selected=null;render();showToast(old?'Cantidad acumulada':'File agregado');setTimeout(()=>$('fileSearch').focus(),20)}
+function render(){let total='0';for(let x of state.entries.values())total=add(total,x.amount);$('total').textContent=money(total);$('words').textContent=words(total);let a=[...state.entries.values()].sort((x,y)=>String(x.file).localeCompare(String(y.file),'es',{numeric:true}));$('clear').disabled=!a.length;$('rows').innerHTML=a.length?a.map(x=>'<div class="row"><div><div class="row-file">File '+esc(x.file)+'</div><div class="detail">'+esc(x.qty)+' × '+esc(x.cost)+'</div><div class="actions"><button type="button" class="mini secondary" data-edit="'+esc(x.file)+'">Editar</button><button type="button" class="mini danger" data-delete="'+esc(x.file)+'">Eliminar</button></div></div><div class="amount">'+money(x.amount)+'</div></div>').join(''):'<div class="empty">Todavía no has agregado producción.</div>'}
+async function unzip(buffer){
+  const bytes=new Uint8Array(buffer);
+
+  // Primary reader for Safari/iPhone and GitHub Pages.
+  if(window.fflate&&typeof window.fflate.unzipSync==='function'){
+    try{
+      const raw=window.fflate.unzipSync(bytes),files=new Map();
+      Object.keys(raw).forEach(name=>files.set(name,raw[name]));
+      return files;
+    }catch{
+      // Continue with the built-in fallback.
+    }
+  }
+
+  // Offline/browser fallback.
+  if(typeof DecompressionStream==='undefined'){
+    throw Error('No se pudo leer el Excel. Verifica tu conexión y vuelve a abrir la página en Safari.');
+  }
+  const v=new DataView(buffer),sig=0x06054b50;let eocd=-1;
+  for(let i=bytes.length-22;i>=Math.max(0,bytes.length-65557);i--){if(v.getUint32(i,true)===sig){eocd=i;break}}
+  if(eocd<0)throw Error('El archivo no parece ser un Excel válido.');
+  const count=v.getUint16(eocd+10,true);let off=v.getUint32(eocd+16,true);const files=new Map();
+  for(let n=0;n<count;n++){
+    if(v.getUint32(off,true)!==0x02014b50)throw Error('El archivo Excel está dañado.');
+    const method=v.getUint16(off+10,true),cs=v.getUint32(off+20,true),nl=v.getUint16(off+28,true),el=v.getUint16(off+30,true),cl=v.getUint16(off+32,true),lo=v.getUint32(off+42,true);
+    const name=new TextDecoder().decode(bytes.slice(off+46,off+46+nl)),lnl=v.getUint16(lo+26,true),lel=v.getUint16(lo+28,true);
+    let data=bytes.slice(lo+30+lnl+lel,lo+30+lnl+lel+cs);
+    if(method===8){
+      let ds;
+      try{ds=new DecompressionStream('deflate-raw')}catch{throw Error('Este navegador no puede descomprimir el Excel. Abre la página en una versión actualizada de Safari.')}
+      data=new Uint8Array(await new Response(new Blob([data]).stream().pipeThrough(ds)).arrayBuffer());
+    }else if(method!==0)throw Error('Método de compresión no compatible.');
+    files.set(name,data);off+=46+nl+el+cl;
+  }
+  return files;
+}
+function xml(files,name){let d=files.get(name);if(!d)throw Error('Falta '+name);return new DOMParser().parseFromString(new TextDecoder().decode(d),'application/xml')}
+function textCell(c,shared){let t=c.getAttribute('t'),v=c.querySelector('v');if(t==='inlineStr')return[...c.querySelectorAll('is t')].map(x=>x.textContent).join('');if(!v)return'';return t==='s'?(shared[+v.textContent]||''):v.textContent}
+function redStyles(styles){let fonts=[...styles.querySelectorAll('fonts > font')],fills=[...styles.querySelectorAll('fills > fill')],out=new Set();[...styles.querySelectorAll('cellXfs > xf')].forEach((xf,i)=>{let fi=+xf.getAttribute('fontId'),fl=+xf.getAttribute('fillId'),colors=[];if(fonts[fi])fonts[fi].querySelectorAll('color').forEach(c=>colors.push(c.getAttribute('rgb')));if(fills[fl])fills[fl].querySelectorAll('fgColor,bgColor').forEach(c=>colors.push(c.getAttribute('rgb')));if(colors.some(c=>c&&['FF0000','C00000','E60000','9C0006','FFC7CE','F4CCCC'].some(r=>c.toUpperCase().endsWith(r))))out.add(i)});return out}
+
+function setProgress(percent,message){
+  const p=Math.max(0,Math.min(100,Number(percent)||0));
+  $('progressWrap').classList.remove('hidden');
+  $('progressBar').style.width=p+'%';
+  $('progressText').textContent=message||'Procesando…';
+}
+function hideProgress(delay=600){
+  setTimeout(()=>$('progressWrap').classList.add('hidden'),delay);
+}
+function hasCapturedEntries(){
+  return state.entries&&state.entries.size>0;
+}
+function ensureCatalogLoaded(){
+  if(!state.catalog||state.catalog.size===0){
+    showToast('Primero carga un Excel de costos');
+    return false;
+  }
+  return true;
+}
+
+const CATALOG_STORAGE_KEY='proyeccionDiaria.catalog.v22';
+
+function serializeCatalog(){
+  return {
+    version:22,
+    savedAt:new Date().toISOString(),
+    redCount:Number(state.redCount||0),
+    duplicates:Array.isArray(state.duplicates)?state.duplicates:[],
+    catalog:[...state.catalog.values()].map(x=>({
+      file:String(x.file),
+      cost:String(x.cost),
+      row:Number(x.row||0)
+    }))
+  };
+}
+
+function saveCatalogLocally(){
+  try{
+    if(!state.catalog||state.catalog.size===0)return false;
+    localStorage.setItem(CATALOG_STORAGE_KEY,JSON.stringify(serializeCatalog()));
+    return true;
+  }catch(err){
+    console.warn('No se pudo guardar el catálogo localmente.',err);
+    return false;
+  }
+}
+
+function restoreCatalogLocally(){
+  try{
+    const raw=localStorage.getItem(CATALOG_STORAGE_KEY);
+    if(!raw)return false;
+    const data=JSON.parse(raw);
+    if(!data||!Array.isArray(data.catalog)||data.catalog.length===0)return false;
+
+    const restored=new Map();
+    for(const item of data.catalog){
+      if(!item||item.file==null||item.cost==null)continue;
+      restored.set(String(item.file),{
+        file:String(item.file),
+        cost:String(item.cost),
+        row:Number(item.row||0)
+      });
+    }
+    if(restored.size===0)return false;
+
+    state.catalog=restored;
+    state.redCount=Number(data.redCount||0);
+    state.duplicates=Array.isArray(data.duplicates)?data.duplicates:[];
+    state.entries.clear();
+    state.selected=null;
+    render();
+    $('status').textContent='Catálogo restaurado del dispositivo: '+restored.size+' Files vigentes.';
+    $('status').className='status ok';
+    return true;
+  }catch(err){
+    console.warn('Catálogo local inválido.',err);
+    return false;
+  }
+}
+
+function forgetCatalogLocally(){
+  try{localStorage.removeItem(CATALOG_STORAGE_KEY)}catch{}
+  state.catalog=new Map();
+  state.entries.clear();
+  state.selected=null;
+  state.redCount=0;
+  state.duplicates=[];
+  $('fileSearch').value='';
+  $('qty').value='';
+  $('selectedCost').textContent='Selecciona un File';
+  $('status').textContent='No hay catálogo cargado.';
+  $('status').className='status';
+  render();
+}
+
+function catalogSummary(){
+  let savedAt='No disponible';
+  try{
+    const raw=localStorage.getItem(CATALOG_STORAGE_KEY);
+    if(raw){
+      const data=JSON.parse(raw);
+      if(data.savedAt)savedAt=new Date(data.savedAt).toLocaleString();
+    }
+  }catch{}
+  return [
+    'Files vigentes: '+(state.catalog?state.catalog.size:0),
+    'Filas rojas ignoradas: '+Number(state.redCount||0),
+    'Files duplicados: '+(Array.isArray(state.duplicates)?state.duplicates.length:0),
+    'Último guardado: '+savedAt,
+    '',
+    'La producción diaria no se guarda.'
+  ].join('\n');
+}
+async function parseExcel(file,onProgress=()=>{}){
+  onProgress(8,'Leyendo archivo…');
+  const buffer=await file.arrayBuffer();
+  onProgress(22,'Abriendo estructura del Excel…');
+  let files=await unzip(buffer),
+      wb=xml(files,'xl/workbook.xml'),
+      rels=xml(files,'xl/_rels/workbook.xml.rels'),
+      relMap=new Map([...rels.querySelectorAll('Relationship')].map(r=>[r.getAttribute('Id'),r.getAttribute('Target')])),
+      sheetEl=[...wb.querySelectorAll('sheets > sheet')].find(s=>norm(s.getAttribute('name')).normalize('NFD').replace(/[\u0300-\u036f]/g,'').includes('CALCULO POR DIA'));
+  if(!sheetEl)throw Error('No se encontró la hoja CALCULO POR DIA. Verifica que el nombre sea exactamente igual.');
+
+  let target=relMap.get(sheetEl.getAttribute('r:id')||sheetEl.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id'));
+  if(!target)throw Error('No se pudo localizar la hoja.');
+  target=target.replace(/^\//,'');
+  if(!target.startsWith('xl/'))target='xl/'+target;
+
+  onProgress(38,'Leyendo la hoja CALCULO POR DIA…');
+  let sheet=xml(files,target),shared=[];
+  if(files.has('xl/sharedStrings.xml')){
+    shared=[...xml(files,'xl/sharedStrings.xml').querySelectorAll('si')]
+      .map(si=>[...si.querySelectorAll('t')].map(t=>t.textContent).join(''));
+  }
+
+  onProgress(52,'Revisando filas rojas y costos vigentes…');
+  let reds=files.has('xl/styles.xml')?redStyles(xml(files,'xl/styles.xml')):new Set(),
+      cat=new Map(),
+      ignored=0,
+      invalid=0,
+      duplicates=new Map();
+
+  for(let row of sheet.querySelectorAll('sheetData > row')){
+    const vals={},stylesByCol={},rowStyle=+(row.getAttribute('s')||0);
+    for(let c of row.children){
+      const ref=c.getAttribute('r'),
+            col=(ref.match(/[A-Z]+/)||[''])[0],
+            style=+(c.getAttribute('s')||0);
+      vals[col]=textCell(c,shared);
+      stylesByCol[col]=style;
+    }
+
+    let f=String(vals.D||'').trim(),
+        cost=excelNumber(vals.C||'');
+
+    if(!f&&!cost)continue;
+    if(!f||!cost){invalid++;continue;}
+
+    const isRed=reds.has(rowStyle)||reds.has(stylesByCol.C)||reds.has(stylesByCol.D);
+    if(isRed){
+      ignored++;
+      continue;
+    }
+
+    if(/^\d+\.0+$/.test(f))f=f.split('.')[0];
+
+    try{
+      parts(cost);
+      if(cat.has(f)&&cat.get(f).cost!==cost){
+        if(!duplicates.has(f))duplicates.set(f,new Set([cat.get(f).cost]));
+        duplicates.get(f).add(cost);
+      }
+      // Rule: the last non-red occurrence in the worksheet is the active cost.
+      cat.set(f,{file:f,cost});
+    }catch{invalid++;}
+  }
+
+  if(!cat.size)throw Error('La hoja existe, pero no contiene datos válidos en columna C (Costo) y columna D (File).');
+  onProgress(86,'Preparando catálogo…');
+
+  state.catalog=cat;
+  state.entries.clear();
+
+  try{
+    localStorage.setItem('pdCatalog',JSON.stringify([...cat.values()]));
+    localStorage.setItem('pdName',file.name);
+  }catch{}
+
+  $('fileName').textContent=file.name;
+
+  let duplicateText='';
+  if(duplicates.size){
+    const details=[...duplicates.entries()]
+      .map(([f,costs])=>f+': '+[...costs].join(' / ')+' → usado '+cat.get(f).cost)
+      .join('; ');
+    duplicateText=' Aviso: '+duplicates.size+' File repetido con costos distintos. Se tomó la última aparición vigente. '+details+'.';
+  }
+
+  $('status').textContent=cat.size+' Files disponibles. '+ignored+' filas rojas ignoradas. '+invalid+' registros incompletos o inválidos omitidos.'+duplicateText;
+  $('status').className=duplicates.size?'status warning':'status ok';
+  render();
+  saveCatalogLocally();
+  onProgress(100,'Catálogo cargado correctamente');
+
+  return {
+    files:cat.size,
+    ignored,
+    invalid,
+    duplicates:[...duplicates.entries()].map(([file,costs])=>({
+      file,
+      costs:[...costs],
+      selected:cat.get(file).cost
+    }))
+  };
+}
+$('fileName').textContent=INITIAL_NAME;$('status').textContent=state.catalog.size+' Files incluidos. '+INITIAL_IGNORED+' filas rojas ignoradas. Puedes reemplazar el Excel cuando cambien o agreguen costos.';
+$('upload').addEventListener('click',()=>{$('excelInput').click()});
+$('excelInput').addEventListener('change',async e=>{
+  const f=e.target.files&&e.target.files[0];
+  if(!f)return;
+
+  if(hasCapturedEntries()){
+    const proceed=confirm('Ya existen Files capturados. Al reemplazar el Excel se limpiará la captura actual para evitar mezclar costos. ¿Deseas continuar?');
+    if(!proceed){
+      e.target.value='';
+      return;
+    }
+  }
+
+  const lower=f.name.toLowerCase();
+  if(!lower.endsWith('.xlsx')&&!lower.endsWith('.xlsm')){
+    $('status').textContent='Selecciona un archivo Excel válido con extensión .xlsx o .xlsm.';
+    $('status').className='status error';
+    e.target.value='';
+    return;
+  }
+
+  $('upload').disabled=true;
+  $('upload').textContent='Leyendo Excel…';
+  $('status').textContent='Validando archivo…';
+  $('status').className='status';
+  setProgress(3,'Preparando lectura…');
+
+  try{
+    await parseExcel(f,(p,msg)=>setProgress(p,msg));
+    showToast('Catálogo reemplazado correctamente');
+  }catch(err){
+    console.error(err);
+    $('status').textContent=err&&err.message?err.message:'No se pudo leer el Excel.';
+    $('status').className='status error';
+    setProgress(100,'No fue posible procesar el archivo');
+  }finally{
+    $('upload').disabled=false;
+    $('upload').textContent='Subir o reemplazar Excel';
+    e.target.value='';
+    hideProgress(900);
+  }
+});
+$('fileSearch').addEventListener('input',suggestions);
+$('fileSearch').addEventListener('keydown',e=>{
+  if(e.key==='Enter'){
+    e.preventDefault();
+    selectTypedFile();
+  }
+});
+$('fileSearch').addEventListener('blur',()=>{
+  setTimeout(()=>{$('suggestions').style.display='none'},180);
+});
+
+function chooseSuggestion(e){
+  const t=e.target.closest('[data-file]');
+  if(!t)return;
+  e.preventDefault();
+  select(t.dataset.file);
+}
+$('suggestions').addEventListener('pointerdown',chooseSuggestion);
+$('suggestions').addEventListener('touchstart',chooseSuggestion,{passive:false});
+$('suggestions').addEventListener('click',chooseSuggestion);
+
+$('add').addEventListener('click',addEntry);
+$('qty').addEventListener('keydown',e=>{if(e.key==='Enter')addEntry()});$('clear').addEventListener('click',()=>{if(confirm('¿Limpiar toda la captura?')){state.entries.clear();render();showToast('Captura limpiada')}});$('rows').addEventListener('click',e=>{
+  const d=e.target.closest('[data-delete]'),ed=e.target.closest('[data-edit]');
+  if(d){
+    state.entries.delete(d.dataset.delete);
+    render();
+    showToast('File eliminado');
+  }
+  if(ed)openEdit(ed.dataset.edit);
+});
+$('cancelEdit').addEventListener('click',closeEdit);
+$('saveEdit').addEventListener('click',saveEdit);
+$('editQty').addEventListener('keydown',e=>{
+  if(e.key==='Enter')saveEdit();
+  if(e.key==='Escape')closeEdit();
+});
+$('editBackdrop').addEventListener('click',e=>{
+  if(e.target===$('editBackdrop'))closeEdit();
+});
+try{let saved=JSON.parse(localStorage.getItem('pdCatalog')||'[]');if(saved.length){state.catalog=new Map(saved.map(x=>[String(x.file),x]));$('fileName').textContent=localStorage.getItem('pdName')||INITIAL_NAME;$('status').textContent=saved.length+' Files guardados en este dispositivo.'}}catch{}
+window.__pdTest={parseExcel,unzip,xml,textCell,redStyles,state,add,mul,parts,money,words,intWords,validPositiveQuantity,addEntry,render,select,selectTypedFile,suggestions,openEdit,closeEdit,saveEdit};
+
+
+$('forgetCatalog').addEventListener('click',()=>{
+  if(!state.catalog||state.catalog.size===0){
+    showToast('No hay catálogo guardado');
+    return;
+  }
+  if(confirm('¿Borrar el catálogo guardado de este dispositivo? La producción del día también se limpiará.')){
+    forgetCatalogLocally();
+    showToast('Catálogo borrado');
+  }
+});
+
+$('catalogInfo').addEventListener('click',()=>{
+  alert(catalogSummary());
+});
+function updateAppStatus(){
+  const checks={
+    fileReader:typeof FileReader!=='undefined',
+    decompression:typeof DecompressionStream!=='undefined'||(window.fflate&&typeof window.fflate.unzipSync==='function'),
+    bigInt:typeof BigInt!=='undefined',
+    serviceWorker:'serviceWorker' in navigator
+  };
+  const ok=checks.fileReader&&checks.decompression&&checks.bigInt;
+  const el=$('appStatus');
+  el.textContent=ok
+    ? 'Navegador compatible. La lectura del Excel y los cálculos exactos están disponibles.'
+    : 'Compatibilidad parcial. Abre la página con Safari actualizado y conexión a internet.';
+  el.className='status '+(ok?'ok':'warn');
+}
+$('installHelp').addEventListener('click',()=>{
+  alert('En Safari: toca Compartir y después “Agregar a pantalla de inicio”.');
+});
+const restoredCatalog=restoreCatalogLocally();
+updateAppStatus();
+if('serviceWorker' in navigator){
+  window.addEventListener('load',()=>{
+    navigator.serviceWorker.register('./service-worker.js').catch(()=>{});
+  });
+}
+render();
+})();
+</script></body></html>
