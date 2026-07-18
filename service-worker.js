@@ -1,4 +1,4 @@
-const CACHE='proyeccion-diaria-v22';
+const CACHE='proyeccion-diaria-v25';
 const ASSETS=[
   './',
   './index.html',

@@ -8,8 +8,8 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v2.2</title>
-<meta name="theme-color" content="#d10072">
+<title>Proyección Diaria — Archivo de prueba v2.5</title>
+<meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Proyección">
@@ -40,10 +40,58 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 .progress-track{height:10px;background:#ececf1;border-radius:999px;overflow:hidden}
 .progress-bar{height:100%;width:0;background:#d10072;transition:width .2s ease}
 .progress-text{margin-top:7px;font-size:13px;color:var(--muted)}
+
+.sticky-total{position:sticky;bottom:10px;z-index:30;margin:14px 16px calc(14px + env(safe-area-inset-bottom));padding:12px 16px;border-radius:18px;background:rgba(255,255,255,.94);-webkit-backdrop-filter:blur(18px);backdrop-filter:blur(18px);box-shadow:0 10px 30px rgba(0,0,0,.12);border:1px solid rgba(0,0,0,.06);display:flex;align-items:center;justify-content:space-between;gap:12px}
+.sticky-total.hidden{display:none}.sticky-total-label{font-size:13px;color:var(--muted);font-weight:700}.sticky-total-value{font-size:24px;font-weight:800;white-space:nowrap;font-variant-numeric:tabular-nums}
+.capture-card:focus-within{scroll-margin-top:18px;scroll-margin-bottom:260px}.btn.success-flash{transform:scale(.98);opacity:.9}.amount,.detail,#total{font-variant-numeric:tabular-nums}
+
+.top-toast{position:fixed;top:calc(12px + env(safe-area-inset-top));left:50%;transform:translate(-50%,-18px);z-index:120;background:#1c1c1e;color:#fff;padding:10px 16px;border-radius:999px;font-size:14px;font-weight:700;opacity:0;pointer-events:none;transition:opacity .2s ease,transform .2s ease;box-shadow:0 10px 28px rgba(0,0,0,.22);max-width:88vw;white-space:nowrap}
+.top-toast.show{opacity:1;transform:translate(-50%,0)}
+.entry-meta{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:10px;font-size:13px;color:var(--muted)}
+.entry-meta strong{display:block;color:var(--text);font-size:15px;margin-top:2px}.row{align-items:start}.amount{font-size:22px}
+@media(max-width:520px){.entry-meta{grid-template-columns:1fr 1fr}}
+
+.capture-status{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:10px;
+  margin-top:10px;
+  min-height:20px
+}
+.capture-hint{
+  font-size:12px;
+  color:var(--muted);
+  text-align:right
+}
+.field.invalid{
+  border-color:var(--danger);
+  box-shadow:0 0 0 3px rgba(255,59,48,.14)
+}
+@media(prefers-color-scheme:dark){
+  :root{
+    --bg:#000;
+    --card:#1c1c1e;
+    --text:#f5f5f7;
+    --muted:#a1a1a6;
+    --line:#3a3a3c;
+    --warn:#3a3218
+  }
+  body{background:var(--bg)}
+  .card,.sheet,.suggestions,.suggestion,.field{background:var(--card);color:var(--text)}
+  .card{box-shadow:0 1px 1px #ffffff08,0 8px 24px #0006}
+  .suggestion{border-color:#38383a}
+  .suggestion:active{background:#2c2c2e}
+  .secondary{background:#2c2c2e;color:var(--text)}
+  .danger{background:#3a1715;color:#ff9f99}
+  .row{border-color:#38383a}
+  .sticky-total{background:rgba(28,28,30,.94);border-color:rgba(255,255,255,.08)}
+  .notice{border-color:#665c2a}
+}
 </style>
 </head>
-<body><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.2</div>
+<body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.5</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -55,10 +103,10 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   <div class="progress-track"><div id="progressBar" class="progress-bar"></div></div>
   <div id="progressText" class="progress-text">Preparando…</div>
 </div><div id="status" class="status ok"></div></section>
-<section class="card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div id="selectedCost" class="status"></div></section>
+<section class="card capture-card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div class="capture-status"><div id="selectedCost" class="status"></div><div class="capture-hint">Enter agrega y continúa</div></div></section>
 <section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div></section>
 <p class="note">Los costos y cálculos conservan todos los decimales disponibles; no se redondean internamente. La captura diaria se elimina al cerrar o recargar.</p>
-</main>
+</main><div id="stickyTotal" class="sticky-total hidden" aria-live="polite"><div><div class="sticky-total-label">TOTAL DEL DÍA</div><div id="stickyTotalValue" class="sticky-total-value">$0.00</div></div><button id="closeKeyboard" type="button" class="btn secondary" style="padding:10px 14px">Listo</button></div>
 <div id="editBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
   <div class="sheet">
     <h3 id="editTitle">Editar cantidad</h3>
@@ -92,10 +140,44 @@ function excelNumber(v){let s=clean(v);if(!s)return s;let n=Number(s);if(!Number
 function parts(v){let s=clean(v);if(!/^[-+]?\d*(?:\.\d*)?$/.test(s)||!/[0-9]/.test(s))throw Error('Número inválido');let neg=s[0]==='-';s=s.replace(/^[-+]/,'');let [i='0',f='']=s.split('.');i=(i||'0').replace(/^0+(?=\d)/,'');f=f.replace(/0+$/,'');return{neg,i,f}}
 function add(a,b){let A=parts(a),B=parts(b),sc=Math.max(A.f.length,B.f.length),to=o=>BigInt(o.i+o.f.padEnd(sc,'0'))*(o.neg?-1n:1n),z=to(A)+to(B),neg=z<0n;if(neg)z=-z;let r=z.toString().padStart(sc+1,'0'),i=sc?r.slice(0,-sc):r,f=sc?r.slice(-sc).replace(/0+$/,''):'';return(neg?'-':'')+i+(f?'.'+f:'')}
 function mul(a,b){let A=parts(a),B=parts(b),sc=A.f.length+B.f.length,z=BigInt(A.i+A.f)*BigInt(B.i+B.f),r=z.toString().padStart(sc+1,'0'),i=sc?r.slice(0,-sc):r,f=sc?r.slice(-sc).replace(/0+$/,''):'';return(A.neg!==B.neg&&z!==0n?'-':'')+i+(f?'.'+f:'')}
-function money(v){let p=parts(v);return(p.neg?'-$':'$')+p.i.replace(/\B(?=(\d{3})+(?!\d))/g,',')+(p.f?'.'+p.f:'')}
+function money(v){let p=parts(v),i=p.i.replace(/\B(?=(\d{3})+(?!\d))/g,','),f=(p.f||'').padEnd(2,'0').slice(0,2);return(p.neg?'-$':'$')+i+'.'+f}
 const u=['cero','uno','dos','tres','cuatro','cinco','seis','siete','ocho','nueve','diez','once','doce','trece','catorce','quince','dieciséis','diecisiete','dieciocho','diecinueve','veinte','veintiuno','veintidós','veintitrés','veinticuatro','veinticinco','veintiséis','veintisiete','veintiocho','veintinueve'];
 function n100(n){if(n<30)return u[n];let d=['','','veinte','treinta','cuarenta','cincuenta','sesenta','setenta','ochenta','noventa'][Math.floor(n/10)];return n%10?d+' y '+u[n%10]:d}function n1000(n){if(n<100)return n100(n);if(n===100)return'cien';let h=['','ciento','doscientos','trescientos','cuatrocientos','quinientos','seiscientos','setecientos','ochocientos','novecientos'][Math.floor(n/100)];return n%100?h+' '+n100(n%100):h}
 function intWords(n){n=BigInt(n);if(n===0n)return'cero';let g=[];while(n){g.push(Number(n%1000n));n/=1000n}let out=[];for(let i=g.length-1;i>=0;i--){let x=g[i];if(!x)continue;if(i===0)out.push(n1000(x));else if(i===1)out.push(x===1?'mil':n1000(x)+' mil');else if(i===2)out.push(x===1?'un millón':n1000(x)+' millones');else if(i===3)out.push(x===1?'mil millones':n1000(x)+' mil millones');else if(i===4)out.push(x===1?'un billón':n1000(x)+' billones');}return out.join(' ')}
+
+function formatCost(v){let p=parts(v),f=(p.f||'').padEnd(2,'0');return(p.neg?'-':'')+p.i+(f?'.'+f:'')}
+function updateStickyTotal(total){let bar=$('stickyTotal'),val=$('stickyTotalValue');if(!bar||!val)return;val.textContent=money(total);bar.classList.toggle('hidden',!state.entries.size)}
+function revealInput(el){setTimeout(()=>{try{el.scrollIntoView({behavior:'smooth',block:'center'})}catch(e){}},180)}
+function closeKeyboard(){let a=document.activeElement;if(a&&a.blur)a.blur()}
+function flashAdded(){let b=$('add'),t=b.textContent;b.textContent='Agregado ✓';b.classList.add('success-flash');setTimeout(()=>{b.textContent=t;b.classList.remove('success-flash')},700)}
+
+let topToastTimer=null;
+function showTopToast(message){const el=$('topToast');if(!el)return;el.textContent=message;el.classList.add('show');clearTimeout(topToastTimer);topToastTimer=setTimeout(()=>el.classList.remove('show'),1200)}
+function selectedFileExists(){
+  const raw=$('fileSearch').value.trim();
+  if(!raw)return false;
+  if(state.selected&&state.selected.file===raw&&state.catalog.has(raw))return true;
+  const exact=state.catalog.get(raw)||[...state.catalog.values()].find(v=>norm(v.file)===norm(raw));
+  if(exact){state.selected=exact;return true}
+  return false
+}
+function markInvalid(el,message){
+  el.classList.add('invalid');
+  showTopToast(message);
+  setTimeout(()=>el.classList.remove('invalid'),900);
+  el.focus();
+}
+function submitFromKeyboard(){
+  if(!selectedFileExists()){
+    markInvalid($('fileSearch'),'File no encontrado');
+    return;
+  }
+  if(!$('qty').value.trim()){
+    markInvalid($('qty'),'Captura la cantidad');
+    return;
+  }
+  addEntry();
+}
 function words(v){let p=parts(v),w=(p.neg?'menos ':'')+intWords(p.i);if(p.f)w+=' punto '+p.f.split('').map(x=>u[+x]).join(' ');w+=' '+(p.i==='1'&&!p.f?'peso':'pesos');return w.toUpperCase()}
 function esc(s){return String(s).replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 let editingFile=null,toastTimer=null;
@@ -136,7 +218,7 @@ function saveEdit(){
     entry.amount=mul(entry.cost,q);
     closeEdit();
     render();
-    showToast('Cantidad actualizada');
+    showTopToast('✓ Editado');
   }catch(err){
     alert(err.message||'Cantidad inválida');
   }
@@ -147,8 +229,8 @@ function select(file){
   state.selected=x;
   $('fileSearch').value=file;
   $('suggestions').style.display='none';
-  $('selectedCost').textContent='Costo exacto: '+x.cost;
-  setTimeout(()=>$('qty').focus(),20);
+  $('selectedCost').textContent='Costo exacto: '+formatCost(x.cost);
+  setTimeout(()=>{$('qty').focus();revealInput($('qty'))},20);
 }
 function selectTypedFile(){
   const typed=$('fileSearch').value.trim();
@@ -177,8 +259,30 @@ function selectTypedFile(){
   return false;
 }
 function suggestions(){let q=norm($('fileSearch').value);state.selected=null;$('selectedCost').textContent='';if(!q){$('suggestions').style.display='none';return}let a=[...state.catalog.keys()].filter(k=>norm(k).includes(q)).slice(0,30);if(!a.length){$('suggestions').style.display='none';return}$('suggestions').innerHTML=a.map(k=>'<button type="button" class="suggestion" role="option" data-file="'+esc(k)+'">'+esc(k)+'</button>').join('');$('suggestions').style.display='block'}
-function addEntry(){if(!ensureCatalogLoaded())return;let typed=$('fileSearch').value.trim(),x=state.catalog.get(typed)||[...state.catalog.values()].find(v=>norm(v.file)===norm(typed));if(!x){alert('Escribe o selecciona un File válido.');return}let q;try{q=validPositiveQuantity($('qty').value)}catch(e){alert(e.message||'Captura una cantidad válida.');return}let old=state.entries.get(x.file),newQ=old?add(old.qty,q):q;state.entries.set(x.file,{file:x.file,cost:x.cost,qty:newQ,amount:mul(x.cost,newQ)});$('fileSearch').value='';$('qty').value='';$('selectedCost').textContent='';state.selected=null;render();showToast(old?'Cantidad acumulada':'File agregado');setTimeout(()=>$('fileSearch').focus(),20)}
-function render(){let total='0';for(let x of state.entries.values())total=add(total,x.amount);$('total').textContent=money(total);$('words').textContent=words(total);let a=[...state.entries.values()].sort((x,y)=>String(x.file).localeCompare(String(y.file),'es',{numeric:true}));$('clear').disabled=!a.length;$('rows').innerHTML=a.length?a.map(x=>'<div class="row"><div><div class="row-file">File '+esc(x.file)+'</div><div class="detail">'+esc(x.qty)+' × '+esc(x.cost)+'</div><div class="actions"><button type="button" class="mini secondary" data-edit="'+esc(x.file)+'">Editar</button><button type="button" class="mini danger" data-delete="'+esc(x.file)+'">Eliminar</button></div></div><div class="amount">'+money(x.amount)+'</div></div>').join(''):'<div class="empty">Todavía no has agregado producción.</div>'}
+function addEntry(){
+  if(!ensureCatalogLoaded())return;
+  let typed=$('fileSearch').value.trim();
+  let x=state.catalog.get(typed)||[...state.catalog.values()].find(v=>norm(v.file)===norm(typed));
+  if(!x){markInvalid($('fileSearch'),'File no encontrado');return}
+  let q;
+  try{q=validPositiveQuantity($('qty').value)}
+  catch(e){markInvalid($('qty'),e.message||'Cantidad inválida');return}
+  let old=state.entries.get(x.file),newQ=old?add(old.qty,q):q;
+  state.entries.set(x.file,{file:x.file,cost:x.cost,qty:newQ,amount:mul(x.cost,newQ)});
+  $('fileSearch').value='';
+  $('qty').value='';
+  $('selectedCost').textContent='';
+  $('suggestions').style.display='none';
+  state.selected=null;
+  render();
+  flashAdded();
+  showTopToast(old?'✓ Cantidad acumulada':'✓ Agregado');
+  setTimeout(()=>{
+    $('fileSearch').focus({preventScroll:true});
+    revealInput($('fileSearch'));
+  },20);
+}
+function render(){let total='0';for(let x of state.entries.values())total=add(total,x.amount);$('total').textContent=money(total);updateStickyTotal(total);$('words').textContent=words(total);let a=[...state.entries.values()].sort((x,y)=>String(x.file).localeCompare(String(y.file),'es',{numeric:true}));$('clear').disabled=!a.length;$('rows').innerHTML=a.length?a.map(x=>'<div class="row"><div><div class="row-file">File '+esc(x.file)+'</div><div class="entry-meta"><div>Cantidad<strong>'+esc(x.qty)+'</strong></div><div>Costo<strong>'+esc(formatCost(x.cost))+'</strong></div><div>Importe<strong>'+money(x.amount)+'</strong></div></div><div class="actions"><button type="button" class="mini secondary" data-edit="'+esc(x.file)+'">Editar</button><button type="button" class="mini danger" data-delete="'+esc(x.file)+'">Eliminar</button></div></div><div class="amount">'+money(x.amount)+'</div></div>').join(''):'<div class="empty">Todavía no has agregado producción.</div>'}
 async function unzip(buffer){
   const bytes=new Uint8Array(buffer);
 
@@ -478,13 +582,21 @@ $('excelInput').addEventListener('change',async e=>{
     hideProgress(900);
   }
 });
-$('fileSearch').addEventListener('input',suggestions);
+$('fileSearch').addEventListener('focus',()=>revealInput($('fileSearch')));
+$('qty').addEventListener('focus',()=>revealInput($('qty')));
 $('fileSearch').addEventListener('keydown',e=>{
-  if(e.key==='Enter'){
-    e.preventDefault();
-    selectTypedFile();
-  }
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  if(selectTypedFile())setTimeout(()=>$('qty').focus(),20);
 });
+$('qty').addEventListener('keydown',e=>{
+  if(e.key!=='Enter')return;
+  e.preventDefault();
+  submitFromKeyboard();
+});
+
+$('closeKeyboard').addEventListener('click',closeKeyboard);
+$('fileSearch').addEventListener('input',suggestions);
 $('fileSearch').addEventListener('blur',()=>{
   setTimeout(()=>{$('suggestions').style.display='none'},180);
 });
@@ -500,21 +612,22 @@ $('suggestions').addEventListener('touchstart',chooseSuggestion,{passive:false})
 $('suggestions').addEventListener('click',chooseSuggestion);
 
 $('add').addEventListener('click',addEntry);
-$('qty').addEventListener('keydown',e=>{if(e.key==='Enter')addEntry()});$('clear').addEventListener('click',()=>{if(confirm('¿Limpiar toda la captura?')){state.entries.clear();render();showToast('Captura limpiada')}});$('rows').addEventListener('click',e=>{
+$('clear').addEventListener('click',()=>{if(confirm('¿Limpiar toda la captura?')){state.entries.clear();render();showTopToast('✓ Captura limpiada')}});$('rows').addEventListener('click',e=>{
   const d=e.target.closest('[data-delete]'),ed=e.target.closest('[data-edit]');
   if(d){
     state.entries.delete(d.dataset.delete);
     render();
-    showToast('File eliminado');
+    showTopToast('✓ Eliminado');
   }
   if(ed)openEdit(ed.dataset.edit);
 });
 $('cancelEdit').addEventListener('click',closeEdit);
 $('saveEdit').addEventListener('click',saveEdit);
 $('editQty').addEventListener('keydown',e=>{
-  if(e.key==='Enter')saveEdit();
-  if(e.key==='Escape')closeEdit();
+  if(e.key==='Enter'){e.preventDefault();saveEdit()}
+  if(e.key==='Escape'){e.preventDefault();closeEdit()}
 });
+
 $('editBackdrop').addEventListener('click',e=>{
   if(e.target===$('editBackdrop'))closeEdit();
 });

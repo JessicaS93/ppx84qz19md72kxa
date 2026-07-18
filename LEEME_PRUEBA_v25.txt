@@ -1,0 +1,39 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.5
+
+TERMINADO
+- Se corrigieron eventos duplicados de Enter detectados en v2.4.
+- Un Enter en Cantidad ejecuta una sola captura.
+- Un Enter en File selecciona coincidencia exacta o única y pasa a Cantidad.
+- Después de agregar, File y Cantidad se limpian y el cursor vuelve a File.
+- La lista de sugerencias se cierra automáticamente.
+- Validación inmediata en pantalla para:
+  File inexistente
+  cantidad vacía
+  cantidad cero
+  cantidad negativa
+  cantidad inválida
+- Los Files repetidos continúan acumulando cantidad y muestran confirmación.
+- Modo oscuro automático según la configuración del iPhone.
+- Enter y Escape en edición tienen un solo manejador.
+- No se modificó la lectura del Excel ni la precisión de cálculo.
+
+PRUEBAS EJECUTADAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Verificación de manejadores únicos de Enter aprobada.
+- Verificación de captura continua aprobada estáticamente.
+- Verificación de validación visual aprobada.
+- Verificación de modo oscuro aprobada.
+- Cache actualizado a v2.5.
+
+PENDIENTE
+- Subir esta versión al repositorio.
+- Validar en Safari del iPhone:
+  una sola suma al presionar Enter
+  captura continua
+  validación visual
+  acumulación de File repetido
+  modo oscuro
+- Corregir cualquier detalle encontrado en la prueba real.
+
+Continúa siendo un archivo de prueba.
