@@ -1,0 +1,35 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v3.1
+
+CAUSA CORREGIDA
+- El botón Compartir proyección llamaba openShareScreen desde el atributo HTML onclick.
+- openShareScreen pertenece al código interno de la aplicación y no estaba disponible como función global.
+- Safari no podía ejecutar esa llamada.
+
+CORRECCIÓN
+- Se eliminó el onclick incorrecto.
+- El botón ahora se conecta mediante addEventListener dentro del mismo ámbito de JavaScript.
+- Se conserva la pantalla completa y la vista sin costo unitario.
+
+LA VISTA INCLUYE
+- Fecha.
+- File.
+- Cantidad.
+- Total por File.
+- Total del día.
+
+NO INCLUYE
+- Costo unitario.
+
+PRUEBAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Botón sin onclick global verificado.
+- Listener interno del botón verificado.
+- Función openShareScreen disponible en el mismo ámbito.
+- Cache actualizado a v3.1.
+
+PENDIENTE
+- Subir a GitHub.
+- Probar en Safari del iPhone.
+
+Continúa siendo un archivo de prueba.

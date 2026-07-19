@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v3.0</title>
+<title>Proyección Diaria — Archivo de prueba v3.1</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -172,7 +172,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.0</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.1</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -186,7 +186,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </div><div id="status" class="status ok"></div></section>
 <section class="card capture-card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div class="capture-status"><div id="selectedCost" class="status"></div><div class="capture-hint">Enter agrega y continúa</div></div></section>
 <section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div>
-<button type="button" id="openShare" class="btn primary share-action-button" onclick="openShareScreen()">Compartir proyección</button></section>
+<button type="button" id="openShare" class="btn primary share-action-button">Compartir proyección</button></section>
 <p class="note">Los costos y cálculos conservan todos los decimales disponibles; no se redondean internamente. La captura diaria se elimina al cerrar o recargar.</p>
 </main><div id="stickyTotal" class="sticky-total hidden" aria-live="polite"><div><div class="sticky-total-label">TOTAL DEL DÍA</div><div id="stickyTotalValue" class="sticky-total-value">$0.00</div></div><button id="closeKeyboard" type="button" class="btn secondary" style="padding:10px 14px">Listo</button></div>
 <div id="editBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
@@ -783,9 +783,12 @@ const saveImageEl=$('saveImage');
 
 function activateShareButton(event){if(event){event.preventDefault();event.stopPropagation()}openShareScreen();}
 
+if(openShareEl)openShareEl.addEventListener('click',activateShareButton);
+
 if(closeShareEl)closeShareEl.addEventListener('click',closeShareScreen);
 if(shareImageEl)shareImageEl.addEventListener('click',shareProjectionImage);
 if(saveImageEl)saveImageEl.addEventListener('click',saveProjectionImage);
+window.__projectionShareTest={open:openShareScreen,close:closeShareScreen};
 
 $('upload').addEventListener('click',()=>{$('excelInput').click()});
 $('excelInput').addEventListener('change',async e=>{
