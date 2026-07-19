@@ -1,0 +1,33 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v3.0
+
+CORRECCIÓN PRINCIPAL
+- Se reescribió la apertura de Compartir proyección.
+- Se eliminó la dependencia de funciones que fallaban en Safari.
+- Se usa JavaScript tradicional y compatible con iPhone.
+- Se eliminó el evento táctil duplicado.
+- El botón abre la vista mediante una llamada directa.
+- La vista se muestra con display:block para evitar problemas de modal.
+
+LA VISTA INCLUYE
+- Fecha.
+- File.
+- Cantidad.
+- Total por File.
+- Total del día.
+
+NO INCLUYE
+- Costo unitario.
+
+PRUEBAS TÉCNICAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Elementos de la vista verificados.
+- Apertura directa verificada en código.
+- Tabla sin costo unitario verificada.
+- Cache actualizado a v3.0.
+
+PENDIENTE
+- Subir a GitHub.
+- Probar en Safari del iPhone.
+
+Continúa siendo un archivo de prueba.

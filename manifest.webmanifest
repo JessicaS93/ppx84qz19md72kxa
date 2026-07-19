@@ -6,7 +6,7 @@
   "display": "standalone",
   "background_color": "#f5f5f7",
   "theme_color": "#d10072",
-  "description": "Calculadora diaria con pantalla completa para compartir la proyección sin costo unitario.",
+  "description": "Calculadora diaria con vista compartible estable para Safari y sin costo unitario.",
   "icons": [
     {
       "src": "./icon-192.png",
