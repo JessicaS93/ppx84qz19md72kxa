@@ -1,0 +1,33 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.8
+
+CORRECCIÓN
+- Se corrigió el botón Compartir proyección.
+- El botón ahora llama directamente a la función de apertura.
+- La ventana se muestra explícitamente para Safari.
+- Se valida que existan registros y elementos antes de abrir.
+- Los errores ahora muestran un aviso visible.
+
+LA VISTA INCLUYE
+- Fecha.
+- File.
+- Cantidad.
+- Total por File.
+- Total del día.
+
+LA VISTA NO INCLUYE
+- Costo unitario.
+
+PRUEBAS EJECUTADAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Verificación del botón directo.
+- Verificación de apertura explícita.
+- Verificación de la tabla sin columna de costo.
+- Cache actualizado a v2.8.
+
+PENDIENTE
+- Subir la v2.8 a GitHub.
+- Probar la apertura desde Safari del iPhone.
+- Probar Compartir imagen.
+
+Continúa siendo un archivo de prueba.
