@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v2.8</title>
+<title>Proyección Diaria — Archivo de prueba v2.9</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -89,27 +89,90 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   .notice{border-color:#665c2a}
 }
 
-.share-btn{width:100%;margin-top:14px;background:#1c1c1e;color:#fff}
-.share-sheet{position:fixed;inset:0;z-index:140;display:none;align-items:flex-end;background:rgba(0,0,0,.45)}
-.share-sheet.open{display:flex}
-.share-panel{width:100%;max-height:92vh;overflow:auto;background:var(--card);border-radius:26px 26px 0 0;padding:18px 18px calc(18px + env(safe-area-inset-bottom));box-shadow:0 -18px 45px rgba(0,0,0,.22)}
-.share-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:14px}
-.share-head h3{margin:0;font-size:22px}
-.share-close{width:38px;height:38px;border-radius:50%;border:0;background:var(--line);color:var(--text);font-size:22px}
-.share-preview{background:#fff;border-radius:18px;padding:18px;color:#111;box-shadow:inset 0 0 0 1px #00000012}
-.share-preview-title{font-size:24px;font-weight:800;margin:0}
-.share-preview-date{margin-top:4px;font-size:14px;color:#666}
-.share-preview-table{width:100%;border-collapse:collapse;margin-top:18px}
-.share-preview-table th,.share-preview-table td{padding:10px 4px;border-bottom:1px solid #e5e5e5;text-align:left;font-size:14px}
+.share-close{background:#3a3a3c}}
+
+.share-action-button{
+  display:block;
+  width:100%;
+  min-height:58px;
+  margin-top:18px;
+  font-size:18px;
+  line-height:1.2;
+  position:relative;
+  z-index:2
+}
+.share-screen{
+  position:fixed;
+  inset:0;
+  z-index:1000;
+  display:none;
+  background:var(--bg);
+  overflow-y:auto;
+  -webkit-overflow-scrolling:touch;
+  padding:calc(18px + env(safe-area-inset-top)) 18px calc(24px + env(safe-area-inset-bottom))
+}
+.share-screen.visible{display:block}
+.share-screen-inner{max-width:760px;margin:0 auto}
+.share-screen-header{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:14px;
+  margin-bottom:18px
+}
+.share-screen-header h2{margin:0;font-size:28px}
+.share-screen-close{
+  flex:0 0 auto;
+  width:44px;
+  height:44px;
+  border:0;
+  border-radius:50%;
+  background:var(--line);
+  color:var(--text);
+  font-size:26px;
+  line-height:1
+}
+.share-preview{
+  background:#fff;
+  color:#111;
+  border-radius:22px;
+  padding:22px;
+  box-shadow:0 10px 35px rgba(0,0,0,.10)
+}
+.share-preview-title{font-size:27px;font-weight:800;margin:0}
+.share-preview-date{margin-top:6px;font-size:15px;color:#666}
+.share-preview-table{width:100%;border-collapse:collapse;margin-top:20px}
+.share-preview-table th,.share-preview-table td{
+  padding:12px 4px;
+  border-bottom:1px solid #e5e5e5;
+  text-align:left;
+  font-size:15px
+}
 .share-preview-table th:last-child,.share-preview-table td:last-child{text-align:right}
-.share-preview-total{display:flex;justify-content:space-between;gap:10px;margin-top:18px;padding-top:14px;border-top:2px solid #111;font-size:22px;font-weight:800}
-.share-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
-.share-note{margin:12px 2px 0;font-size:12px;color:var(--muted)}
-@media(prefers-color-scheme:dark){.share-btn{background:#f5f5f7;color:#111}.share-close{background:#3a3a3c}}
+.share-preview-total{
+  display:flex;
+  justify-content:space-between;
+  gap:12px;
+  margin-top:20px;
+  padding-top:16px;
+  border-top:2px solid #111;
+  font-size:23px;
+  font-weight:800
+}
+.share-screen-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:12px;
+  margin-top:18px
+}
+.share-screen-note{font-size:13px;color:var(--muted);text-align:center;margin:12px 0 0}
+@media(min-width:600px){
+  .share-screen-actions{grid-template-columns:1fr 1fr}
+}
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.8</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v2.9</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -123,7 +186,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </div><div id="status" class="status ok"></div></section>
 <section class="card capture-card"><h2>Captura del día</h2><div class="grid"><div class="search-wrap"><label for="fileSearch">File</label><input id="fileSearch" class="field" inputmode="numeric" autocomplete="off" placeholder="Buscar File"><div id="suggestions" class="suggestions" role="listbox" aria-label="Files sugeridos"></div></div><div><label for="qty">Cantidad</label><input id="qty" class="field" inputmode="decimal" placeholder="0"></div></div><button id="add" type="button" class="btn primary" style="margin-top:14px">Agregar</button><div class="capture-status"><div id="selectedCost" class="status"></div><div class="capture-hint">Enter agrega y continúa</div></div></section>
 <section class="card"><div class="section-head"><h2 style="margin:0">Files capturados</h2><button id="clear" type="button" class="mini danger">Limpiar</button></div><div id="rows" class="rows"></div>
-<button type="button" id="openShare" class="primary share-btn" onclick="openShareSheet()">Compartir proyección</button></section>
+<button type="button" id="openShare" class="btn primary share-action-button">Compartir proyección</button></section>
 <p class="note">Los costos y cálculos conservan todos los decimales disponibles; no se redondean internamente. La captura diaria se elimina al cerrar o recargar.</p>
 </main><div id="stickyTotal" class="sticky-total hidden" aria-live="polite"><div><div class="sticky-total-label">TOTAL DEL DÍA</div><div id="stickyTotalValue" class="sticky-total-value">$0.00</div></div><button id="closeKeyboard" type="button" class="btn secondary" style="padding:10px 14px">Listo</button></div>
 <div id="editBackdrop" class="sheet-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="editTitle">
@@ -147,15 +210,18 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
   </div>
 </section>
 
-<div id="shareSheet" class="share-sheet" aria-hidden="true" style="display:none">
-  <div class="share-panel" role="dialog" aria-modal="true" aria-labelledby="shareTitle">
-    <div class="share-head"><h3 id="shareTitle">Vista para compartir</h3><button type="button" id="closeShare" class="share-close">×</button></div>
-    <div id="sharePreview" class="share-preview"></div>
-    <div class="share-actions">
-      <button type="button" id="shareImage" class="primary">Compartir imagen</button>
-      <button type="button" id="saveImage" class="secondary">Guardar imagen</button>
+<div id="shareScreen" class="share-screen" aria-hidden="true">
+  <div class="share-screen-inner">
+    <div class="share-screen-header">
+      <h2>Vista para compartir</h2>
+      <button type="button" id="closeShare" class="share-screen-close" aria-label="Cerrar">×</button>
     </div>
-    <p class="share-note">La imagen no incluye el costo unitario.</p>
+    <div id="sharePreview" class="share-preview"></div>
+    <div class="share-screen-actions">
+      <button type="button" id="shareImage" class="btn primary">Compartir imagen</button>
+      <button type="button" id="saveImage" class="btn secondary">Guardar imagen</button>
+    </div>
+    <p class="share-screen-note">La imagen no incluye el costo unitario.</p>
   </div>
 </div>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
@@ -584,14 +650,14 @@ function projectionRows(){
   return rows;
 }
 function ensureShareElements(){
-  return $('shareSheet')&&$('sharePreview')&&$('shareImage')&&$('saveImage');
+  return $('shareScreen')&&$('sharePreview')&&$('shareImage')&&$('saveImage');
 }
 function renderSharePreview(){
   const rows=projectionRows();
   let total=D(0);
   rows.forEach(x=>{total=add(total,x.amount)});
   $('sharePreview').innerHTML=
-    '<h4 class="share-preview-title">Proyección del día</h4>'+
+    '<h3 class="share-preview-title">Proyección del día</h3>'+
     '<div class="share-preview-date">'+esc(projectionDateText())+'</div>'+
     '<table class="share-preview-table">'+
     '<thead><tr><th>File</th><th>Cantidad</th><th>Total</th></tr></thead>'+
@@ -600,35 +666,32 @@ function renderSharePreview(){
     ).join('')+'</tbody></table>'+
     '<div class="share-preview-total"><span>Total del día</span><span>'+money(total)+'</span></div>';
 }
-function openShareSheet(){
+function openShareScreen(){
   if(!state.entries||state.entries.size===0){
     showTopToast('No hay Files capturados');
-    return false;
+    return;
   }
   if(!ensureShareElements()){
     showTopToast('No se pudo abrir la vista');
-    return false;
+    return;
   }
   try{
     renderSharePreview();
-    const sheet=$('shareSheet');
-    sheet.classList.add('open');
-    sheet.style.display='flex';
-    sheet.setAttribute('aria-hidden','false');
+    const screen=$('shareScreen');
+    screen.classList.add('visible');
+    screen.setAttribute('aria-hidden','false');
+    screen.scrollTop=0;
     document.body.style.overflow='hidden';
-    return true;
   }catch(e){
-    console.error('Error al abrir Compartir proyección:',e);
+    console.error('Error al abrir la vista:',e);
     showTopToast('No se pudo abrir la vista');
-    return false;
   }
 }
-function closeShareSheet(){
-  const sheet=$('shareSheet');
-  if(!sheet)return;
-  sheet.classList.remove('open');
-  sheet.style.display='none';
-  sheet.setAttribute('aria-hidden','true');
+function closeShareScreen(){
+  const screen=$('shareScreen');
+  if(!screen)return;
+  screen.classList.remove('visible');
+  screen.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
 }
 function drawRoundRect(ctx,x,y,w,h,r){
@@ -684,11 +747,23 @@ async function saveProjectionImage(){
 }
 
 
-const openShareEl=$('openShare'),closeShareEl=$('closeShare'),shareImageEl=$('shareImage'),saveImageEl=$('saveImage'),shareSheetEl=$('shareSheet');
-if(closeShareEl)closeShareEl.addEventListener('click',closeShareSheet);
+const openShareEl=$('openShare');
+const closeShareEl=$('closeShare');
+const shareImageEl=$('shareImage');
+const saveImageEl=$('saveImage');
+
+function activateShareButton(event){
+  if(event){event.preventDefault();event.stopPropagation()}
+  openShareScreen();
+}
+if(openShareEl){
+  openShareEl.addEventListener('click',activateShareButton);
+  openShareEl.addEventListener('touchend',activateShareButton,{passive:false});
+}
+if(closeShareEl)closeShareEl.addEventListener('click',closeShareScreen);
 if(shareImageEl)shareImageEl.addEventListener('click',shareProjectionImage);
 if(saveImageEl)saveImageEl.addEventListener('click',saveProjectionImage);
-if(shareSheetEl)shareSheetEl.addEventListener('click',e=>{if(e.target===shareSheetEl)closeShareSheet()});
+
 $('upload').addEventListener('click',()=>{$('excelInput').click()});
 $('excelInput').addEventListener('change',async e=>{
   const f=e.target.files&&e.target.files[0];

@@ -1,0 +1,33 @@
+PROYECCIÓN DIARIA — ARCHIVO DE PRUEBA v2.9
+
+CORRECCIÓN PRINCIPAL
+- Se eliminó la barra negra delgada de Compartir proyección.
+- Ahora es un botón normal, grande y con área táctil de 58 px.
+- Se agregaron eventos independientes para clic y toque de iPhone.
+- La vista para compartir ahora ocupa la pantalla completa.
+- El botón ya no depende de la ventana modal anterior.
+
+LA VISTA COMPARTE
+- Fecha.
+- File.
+- Cantidad.
+- Total por File.
+- Total del día.
+
+NO COMPARTE
+- Costo unitario.
+
+PRUEBAS TÉCNICAS
+- Sintaxis JavaScript aprobada.
+- Sintaxis Service Worker aprobada.
+- Botón con clase estándar verificado.
+- Evento de clic verificado.
+- Evento táctil verificado.
+- Pantalla completa verificada en el código.
+- Cache actualizado a v2.9.
+
+PENDIENTE
+- Subir la v2.9 a GitHub.
+- Probar en Safari del iPhone la apertura y la generación de imagen.
+
+Continúa siendo un archivo de prueba.
