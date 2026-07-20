@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v3.1</title>
+<title>Proyección Diaria — Archivo de prueba v3.2 · Diagnóstico</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -169,10 +169,18 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 @media(min-width:600px){
   .share-screen-actions{grid-template-columns:1fr 1fr}
 }
+
+.diagnostic-backdrop{position:fixed;inset:0;background:rgba(0,0,0,.48);z-index:10000;padding:18px;display:flex;align-items:flex-end;justify-content:center}
+.diagnostic-backdrop.hidden{display:none}
+.diagnostic-panel{width:min(720px,100%);max-height:88vh;overflow:auto;background:#fff;border-radius:24px;padding:20px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.diagnostic-title{font-size:22px;font-weight:800;margin:0 0 8px}
+.diagnostic-stage{font-size:14px;font-weight:700;color:#b42318;margin-bottom:10px}
+.diagnostic-text{white-space:pre-wrap;word-break:break-word;background:#f2f2f7;border-radius:14px;padding:14px;font:12px/1.45 ui-monospace,SFMono-Regular,Menlo,monospace;max-height:46vh;overflow:auto}
+.diagnostic-actions{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:14px}
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.1</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.2 · Diagnóstico</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -224,11 +232,69 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
     <p class="share-screen-note">La imagen no incluye el costo unitario.</p>
   </div>
 </div>
+
+<div id="diagnosticBackdrop" class="diagnostic-backdrop hidden" role="dialog" aria-modal="true" aria-labelledby="diagnosticTitle">
+  <div class="diagnostic-panel">
+    <h2 id="diagnosticTitle" class="diagnostic-title">Diagnóstico de Compartir proyección</h2>
+    <div id="diagnosticStage" class="diagnostic-stage"></div>
+    <pre id="diagnosticText" class="diagnostic-text"></pre>
+    <div class="diagnostic-actions">
+      <button type="button" id="copyDiagnostic" class="btn primary">Copiar diagnóstico</button>
+      <button type="button" id="closeDiagnostic" class="btn secondary">Cerrar</button>
+    </div>
+  </div>
+</div>
 <script src="https://cdn.jsdelivr.net/npm/fflate@0.8.2/umd/index.js"></script>
 <script>
 (()=>{'use strict';
 const INITIAL=[{"file":"22021","cost":"0.095"},{"file":"55438","cost":"0.135"},{"file":"78720","cost":"0.047"},{"file":"95100","cost":"0.135"},{"file":"10216","cost":"0.1"},{"file":"60090","cost":"0.265"},{"file":"55432","cost":"0.135"},{"file":"10233","cost":"0.1"},{"file":"52206","cost":"0.318"},{"file":"55436","cost":"0.135"},{"file":"55440","cost":"0.135"},{"file":"55443","cost":"0.135"},{"file":"96619","cost":"0.135"},{"file":"55439","cost":"0.135"},{"file":"55442","cost":"0.135"},{"file":"89367","cost":"0.05"},{"file":"10235","cost":"0.1"},{"file":"55382","cost":"0.135"},{"file":"55444","cost":"0.135"},{"file":"15113","cost":"0.1"},{"file":"10221","cost":"0.1"},{"file":"8407","cost":"0.105"},{"file":"8406","cost":"0.105"},{"file":"22517","cost":"0.05"},{"file":"8006","cost":"0.105"},{"file":"22453","cost":"0.095"},{"file":"44829","cost":"0.05"},{"file":"55435","cost":"0.135"},{"file":"55433","cost":"0.135"},{"file":"46907","cost":"0.15"},{"file":"69607","cost":"0.05"},{"file":"84860","cost":"0.5"},{"file":"37928","cost":"0.075"},{"file":"78797","cost":"0.1"},{"file":"7295","cost":"0.1"},{"file":"7297","cost":"0.1"},{"file":"26118","cost":"0.01"},{"file":"47818","cost":"0.047"},{"file":"66205","cost":"1.1"},{"file":"66204","cost":"1.1"},{"file":"73855","cost":"1.66"},{"file":"25124","cost":"1.25"},{"file":"72486","cost":"0.1"},{"file":"72497","cost":"0.1"},{"file":"72501","cost":"0.1"},{"file":"19498","cost":"0.5"},{"file":"18886","cost":"0.1"},{"file":"79817","cost":"0.115"},{"file":"79366","cost":"0.15"},{"file":"79367","cost":"0.5"},{"file":"76843","cost":"0.1"},{"file":"26527","cost":"0.111"},{"file":"26520","cost":"0.111"},{"file":"84602","cost":"0.111"},{"file":"52723","cost":"0.083"},{"file":"76846","cost":"0.1"},{"file":"89707","cost":"0.1"},{"file":"53533","cost":"0.4"},{"file":"45368","cost":"0.02"},{"file":"1060","cost":"0.66"},{"file":"47153","cost":"0.66"},{"file":"2231","cost":"0.111"},{"file":"16545","cost":"0.15"},{"file":"37489","cost":"0.66"},{"file":"37510","cost":"0.66"},{"file":"51427","cost":"0.5"}]; const INITIAL_NAME="Control_Reportes_Danhil_Consolidado_V3(1).xlsx"; const INITIAL_IGNORED=4;
 const $=id=>document.getElementById(id); const state={catalog:new Map(INITIAL.map(x=>[String(x.file),x])),entries:new Map(),selected:null};
+const SHARE_DIAGNOSTIC={version:'v3.2',stage:'inicio',steps:[],lastError:null};
+function diagnosticStep(stage,detail){
+  SHARE_DIAGNOSTIC.stage=stage;
+  SHARE_DIAGNOSTIC.steps.push(new Date().toISOString()+' | '+stage+(detail?' | '+detail:''));
+}
+function errorDetails(err,stage){
+  const e=err||{};
+  return [
+    'Versión: '+SHARE_DIAGNOSTIC.version,
+    'Fecha: '+new Date().toISOString(),
+    'Navegador: '+navigator.userAgent,
+    'Etapa: '+(stage||SHARE_DIAGNOSTIC.stage||'desconocida'),
+    'Tipo: '+(e.name||typeof err||'Error'),
+    'Mensaje: '+(e.message||String(err||'Error desconocido')),
+    'Archivo: '+(e.fileName||'No informado'),
+    'Línea: '+(e.lineNumber||'No informada'),
+    'Columna: '+(e.columnNumber||'No informada'),
+    '',
+    'Stack:',
+    e.stack||'No disponible',
+    '',
+    'Pasos ejecutados:',
+    SHARE_DIAGNOSTIC.steps.join('\n')||'Sin pasos registrados'
+  ].join('\n');
+}
+function showDiagnostic(err,stage){
+  SHARE_DIAGNOSTIC.lastError=errorDetails(err,stage);
+  const back=$('diagnosticBackdrop'),st=$('diagnosticStage'),txt=$('diagnosticText');
+  if(!back||!st||!txt){alert(SHARE_DIAGNOSTIC.lastError);return}
+  st.textContent='Fallo en: '+(stage||SHARE_DIAGNOSTIC.stage||'desconocido');
+  txt.textContent=SHARE_DIAGNOSTIC.lastError;
+  back.classList.remove('hidden');
+  document.body.classList.add('modal-open');
+}
+function closeDiagnostic(){const b=$('diagnosticBackdrop');if(b)b.classList.add('hidden');document.body.classList.remove('modal-open')}
+async function copyDiagnostic(){
+  const text=SHARE_DIAGNOSTIC.lastError||$('diagnosticText')?.textContent||'';
+  try{await navigator.clipboard.writeText(text);showTopToast('✓ Diagnóstico copiado')}
+  catch(_){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();document.execCommand('copy');ta.remove();showTopToast('✓ Diagnóstico copiado')}
+}
+window.addEventListener('error',function(ev){
+  if(ev&&ev.error)showDiagnostic(ev.error,'error global');
+});
+window.addEventListener('unhandledrejection',function(ev){
+  showDiagnostic(ev.reason instanceof Error?ev.reason:new Error(String(ev.reason)),'promesa rechazada');
+});
 function norm(v){return String(v??'').trim().toUpperCase()}
 function expandScientific(v){let s=String(v??'').trim();if(!/[eE]/.test(s))return s;let m=s.match(/^([+-]?)(\d+)(?:\.(\d*))?[eE]([+-]?\d+)$/);if(!m)return s;let sign=m[1],digits=m[2]+(m[3]||''),dec=m[2].length+Number(m[4]);if(dec<=0)return sign+'0.'+'0'.repeat(-dec)+digits;if(dec>=digits.length)return sign+digits+'0'.repeat(dec-digits.length);return sign+digits.slice(0,dec)+'.'+digits.slice(dec)}
 function clean(v){return expandScientific(String(v??'').replace(/[$,\s]/g,''))}
@@ -669,7 +735,7 @@ function renderSharePreview(){
   if(!preview)throw new Error('No existe sharePreview');
 
   const rows=projectionRows();
-  let total=D(0);
+  let total='0';
   for(let i=0;i<rows.length;i++){
     total=add(total,rows[i].amount);
   }
@@ -696,29 +762,33 @@ function renderSharePreview(){
     '</div>';
 }
 function openShareScreen(){
+  SHARE_DIAGNOSTIC.steps=[];
+  diagnosticStep('botón pulsado');
   try{
+    diagnosticStep('validar captura');
     if(!state||!state.entries||state.entries.size===0){
       showTopToast('No hay Files capturados');
       return;
     }
 
+    diagnosticStep('localizar elementos');
     const screen=document.getElementById('shareScreen');
     const preview=document.getElementById('sharePreview');
+    if(!screen||!preview)throw new Error('Faltan elementos de la vista: shareScreen o sharePreview');
 
-    if(!screen||!preview){
-      throw new Error('Faltan elementos de la vista');
-    }
-
+    diagnosticStep('generar vista previa','registros='+state.entries.size);
     renderSharePreview();
 
+    diagnosticStep('mostrar vista');
     screen.style.display='block';
     screen.classList.add('visible');
     screen.setAttribute('aria-hidden','false');
     document.body.style.overflow='hidden';
     window.scrollTo(0,0);
+    diagnosticStep('vista abierta correctamente');
   }catch(e){
     console.error('Error al abrir Compartir proyección:',e);
-    showTopToast('No se pudo abrir la vista');
+    showDiagnostic(e,SHARE_DIAGNOSTIC.stage);
   }
 }
 function closeShareScreen(){
@@ -747,7 +817,7 @@ async function buildProjectionImage(){
     ctx.strokeStyle='#e4e4e7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,y+30);ctx.lineTo(930,y+30);ctx.stroke();
     ctx.fillStyle='#111';ctx.textAlign='left';ctx.fillText(x.file,100,y);ctx.fillText(x.qty,560,y);ctx.textAlign='right';ctx.fillText(money(x.amount),930,y);y+=rowH;
   });
-  const total=rows.reduce((acc,x)=>add(acc,x.amount),D(0));
+  const total=rows.reduce((acc,x)=>add(acc,x.amount),'0');
   const totalY=Math.min(height-160,y+55);
   ctx.strokeStyle='#111';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(100,totalY-50);ctx.lineTo(930,totalY-50);ctx.stroke();
   ctx.fillStyle='#111';ctx.textAlign='left';ctx.font='700 40px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText('TOTAL DEL DÍA',100,totalY);
@@ -765,14 +835,14 @@ async function shareProjectionImage(){
       a.href=url;a.download=file.name;a.click();setTimeout(()=>URL.revokeObjectURL(url),1200);
       showTopToast('✓ Imagen guardada');
     }
-  }catch(e){if(e&&e.name==='AbortError')return;showTopToast('No se pudo compartir')}
+  }catch(e){if(e&&e.name==='AbortError')return;showDiagnostic(e,'compartir imagen')}
 }
 async function saveProjectionImage(){
   try{
     const blob=await buildProjectionImage(),url=URL.createObjectURL(blob),a=document.createElement('a');
     a.href=url;a.download='proyeccion-'+new Date().toISOString().slice(0,10)+'.png';a.click();
     setTimeout(()=>URL.revokeObjectURL(url),1200);showTopToast('✓ Imagen guardada');
-  }catch(e){showTopToast('No se pudo guardar')}
+  }catch(e){showDiagnostic(e,'guardar imagen')}
 }
 
 
@@ -788,6 +858,9 @@ if(openShareEl)openShareEl.addEventListener('click',activateShareButton);
 if(closeShareEl)closeShareEl.addEventListener('click',closeShareScreen);
 if(shareImageEl)shareImageEl.addEventListener('click',shareProjectionImage);
 if(saveImageEl)saveImageEl.addEventListener('click',saveProjectionImage);
+if($('copyDiagnostic'))$('copyDiagnostic').addEventListener('click',copyDiagnostic);
+if($('closeDiagnostic'))$('closeDiagnostic').addEventListener('click',closeDiagnostic);
+if($('diagnosticBackdrop'))$('diagnosticBackdrop').addEventListener('click',e=>{if(e.target===$('diagnosticBackdrop'))closeDiagnostic()});
 window.__projectionShareTest={open:openShareScreen,close:closeShareScreen};
 
 $('upload').addEventListener('click',()=>{$('excelInput').click()});
