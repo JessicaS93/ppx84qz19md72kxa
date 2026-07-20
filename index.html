@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v3.2 · Diagnóstico</title>
+<title>Proyección Diaria — Archivo de prueba v3.3 · Corrección de imagen</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -180,7 +180,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.2 · Diagnóstico</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.3 · Corrección de imagen</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -249,7 +249,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 (()=>{'use strict';
 const INITIAL=[{"file":"22021","cost":"0.095"},{"file":"55438","cost":"0.135"},{"file":"78720","cost":"0.047"},{"file":"95100","cost":"0.135"},{"file":"10216","cost":"0.1"},{"file":"60090","cost":"0.265"},{"file":"55432","cost":"0.135"},{"file":"10233","cost":"0.1"},{"file":"52206","cost":"0.318"},{"file":"55436","cost":"0.135"},{"file":"55440","cost":"0.135"},{"file":"55443","cost":"0.135"},{"file":"96619","cost":"0.135"},{"file":"55439","cost":"0.135"},{"file":"55442","cost":"0.135"},{"file":"89367","cost":"0.05"},{"file":"10235","cost":"0.1"},{"file":"55382","cost":"0.135"},{"file":"55444","cost":"0.135"},{"file":"15113","cost":"0.1"},{"file":"10221","cost":"0.1"},{"file":"8407","cost":"0.105"},{"file":"8406","cost":"0.105"},{"file":"22517","cost":"0.05"},{"file":"8006","cost":"0.105"},{"file":"22453","cost":"0.095"},{"file":"44829","cost":"0.05"},{"file":"55435","cost":"0.135"},{"file":"55433","cost":"0.135"},{"file":"46907","cost":"0.15"},{"file":"69607","cost":"0.05"},{"file":"84860","cost":"0.5"},{"file":"37928","cost":"0.075"},{"file":"78797","cost":"0.1"},{"file":"7295","cost":"0.1"},{"file":"7297","cost":"0.1"},{"file":"26118","cost":"0.01"},{"file":"47818","cost":"0.047"},{"file":"66205","cost":"1.1"},{"file":"66204","cost":"1.1"},{"file":"73855","cost":"1.66"},{"file":"25124","cost":"1.25"},{"file":"72486","cost":"0.1"},{"file":"72497","cost":"0.1"},{"file":"72501","cost":"0.1"},{"file":"19498","cost":"0.5"},{"file":"18886","cost":"0.1"},{"file":"79817","cost":"0.115"},{"file":"79366","cost":"0.15"},{"file":"79367","cost":"0.5"},{"file":"76843","cost":"0.1"},{"file":"26527","cost":"0.111"},{"file":"26520","cost":"0.111"},{"file":"84602","cost":"0.111"},{"file":"52723","cost":"0.083"},{"file":"76846","cost":"0.1"},{"file":"89707","cost":"0.1"},{"file":"53533","cost":"0.4"},{"file":"45368","cost":"0.02"},{"file":"1060","cost":"0.66"},{"file":"47153","cost":"0.66"},{"file":"2231","cost":"0.111"},{"file":"16545","cost":"0.15"},{"file":"37489","cost":"0.66"},{"file":"37510","cost":"0.66"},{"file":"51427","cost":"0.5"}]; const INITIAL_NAME="Control_Reportes_Danhil_Consolidado_V3(1).xlsx"; const INITIAL_IGNORED=4;
 const $=id=>document.getElementById(id); const state={catalog:new Map(INITIAL.map(x=>[String(x.file),x])),entries:new Map(),selected:null};
-const SHARE_DIAGNOSTIC={version:'v3.2',stage:'inicio',steps:[],lastError:null};
+const SHARE_DIAGNOSTIC={version:'v3.3',stage:'inicio',steps:[],lastError:null};
 function diagnosticStep(stage,detail){
   SHARE_DIAGNOSTIC.stage=stage;
   SHARE_DIAGNOSTIC.steps.push(new Date().toISOString()+' | '+stage+(detail?' | '+detail:''));
@@ -798,6 +798,25 @@ function closeShareScreen(){
   screen.style.display='none';
   screen.setAttribute('aria-hidden','true');
   document.body.style.overflow='';
+}
+
+function drawRoundRect(ctx,x,y,width,height,radius){
+  const r=Math.max(0,Math.min(Number(radius)||0,Math.abs(width)/2,Math.abs(height)/2));
+  ctx.beginPath();
+  if(typeof ctx.roundRect==='function'){
+    ctx.roundRect(x,y,width,height,r);
+    return;
+  }
+  ctx.moveTo(x+r,y);
+  ctx.lineTo(x+width-r,y);
+  ctx.quadraticCurveTo(x+width,y,x+width,y+r);
+  ctx.lineTo(x+width,y+height-r);
+  ctx.quadraticCurveTo(x+width,y+height,x+width-r,y+height);
+  ctx.lineTo(x+r,y+height);
+  ctx.quadraticCurveTo(x,y+height,x,y+height-r);
+  ctx.lineTo(x,y+r);
+  ctx.quadraticCurveTo(x,y,x+r,y);
+  ctx.closePath();
 }
 
 async function buildProjectionImage(){
