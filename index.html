@@ -8,7 +8,7 @@
 <meta name="theme-color" content="#f5f5f7">
 <meta name="apple-mobile-web-app-title" content="Proyección Diaria">
 <meta name="description" content="Cálculo móvil de proyección diaria por File y cantidad.">
-<title>Proyección Diaria — Archivo de prueba v3.3 · Corrección de imagen</title>
+<title>Proyección Diaria — Archivo de prueba v3.4 · Imagen optimizada</title>
 <meta name="theme-color" content="#d10072" media="(prefers-color-scheme: light)"><meta name="theme-color" content="#000000" media="(prefers-color-scheme: dark)">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
@@ -180,7 +180,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 </style>
 </head>
 <body><div id="topToast" class="top-toast" aria-live="polite"></div><main>
-<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.3 · Corrección de imagen</div>
+<h1>Proyección Diaria</h1><div style="font-size:12px;color:#6e6e73;margin:-8px 0 14px">Archivo de prueba v3.4 · Imagen optimizada</div>
 <section class="card total-card"><div class="eyebrow">Proyección total del día</div><div id="total" class="total">$0</div><div id="words" class="words">CERO PESOS</div></section>
 <section class="card"><h2>Archivo de costos</h2><div id="fileName" class="file-name"></div><input id="excelInput" class="hidden" type="file" accept=".xlsx,.xlsm"><button id="upload" type="button" class="btn primary" style="margin-top:14px">Subir o reemplazar Excel</button>
 <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:10px">
@@ -249,7 +249,7 @@ body.modal-open{overflow:hidden}.section-head{display:flex;align-items:center;ju
 (()=>{'use strict';
 const INITIAL=[{"file":"22021","cost":"0.095"},{"file":"55438","cost":"0.135"},{"file":"78720","cost":"0.047"},{"file":"95100","cost":"0.135"},{"file":"10216","cost":"0.1"},{"file":"60090","cost":"0.265"},{"file":"55432","cost":"0.135"},{"file":"10233","cost":"0.1"},{"file":"52206","cost":"0.318"},{"file":"55436","cost":"0.135"},{"file":"55440","cost":"0.135"},{"file":"55443","cost":"0.135"},{"file":"96619","cost":"0.135"},{"file":"55439","cost":"0.135"},{"file":"55442","cost":"0.135"},{"file":"89367","cost":"0.05"},{"file":"10235","cost":"0.1"},{"file":"55382","cost":"0.135"},{"file":"55444","cost":"0.135"},{"file":"15113","cost":"0.1"},{"file":"10221","cost":"0.1"},{"file":"8407","cost":"0.105"},{"file":"8406","cost":"0.105"},{"file":"22517","cost":"0.05"},{"file":"8006","cost":"0.105"},{"file":"22453","cost":"0.095"},{"file":"44829","cost":"0.05"},{"file":"55435","cost":"0.135"},{"file":"55433","cost":"0.135"},{"file":"46907","cost":"0.15"},{"file":"69607","cost":"0.05"},{"file":"84860","cost":"0.5"},{"file":"37928","cost":"0.075"},{"file":"78797","cost":"0.1"},{"file":"7295","cost":"0.1"},{"file":"7297","cost":"0.1"},{"file":"26118","cost":"0.01"},{"file":"47818","cost":"0.047"},{"file":"66205","cost":"1.1"},{"file":"66204","cost":"1.1"},{"file":"73855","cost":"1.66"},{"file":"25124","cost":"1.25"},{"file":"72486","cost":"0.1"},{"file":"72497","cost":"0.1"},{"file":"72501","cost":"0.1"},{"file":"19498","cost":"0.5"},{"file":"18886","cost":"0.1"},{"file":"79817","cost":"0.115"},{"file":"79366","cost":"0.15"},{"file":"79367","cost":"0.5"},{"file":"76843","cost":"0.1"},{"file":"26527","cost":"0.111"},{"file":"26520","cost":"0.111"},{"file":"84602","cost":"0.111"},{"file":"52723","cost":"0.083"},{"file":"76846","cost":"0.1"},{"file":"89707","cost":"0.1"},{"file":"53533","cost":"0.4"},{"file":"45368","cost":"0.02"},{"file":"1060","cost":"0.66"},{"file":"47153","cost":"0.66"},{"file":"2231","cost":"0.111"},{"file":"16545","cost":"0.15"},{"file":"37489","cost":"0.66"},{"file":"37510","cost":"0.66"},{"file":"51427","cost":"0.5"}]; const INITIAL_NAME="Control_Reportes_Danhil_Consolidado_V3(1).xlsx"; const INITIAL_IGNORED=4;
 const $=id=>document.getElementById(id); const state={catalog:new Map(INITIAL.map(x=>[String(x.file),x])),entries:new Map(),selected:null};
-const SHARE_DIAGNOSTIC={version:'v3.3',stage:'inicio',steps:[],lastError:null};
+const SHARE_DIAGNOSTIC={version:'v3.4',stage:'inicio',steps:[],lastError:null};
 function diagnosticStep(stage,detail){
   SHARE_DIAGNOSTIC.stage=stage;
   SHARE_DIAGNOSTIC.steps.push(new Date().toISOString()+' | '+stage+(detail?' | '+detail:''));
@@ -821,27 +821,79 @@ function drawRoundRect(ctx,x,y,width,height,radius){
 
 async function buildProjectionImage(){
   const rows=projectionRows();
-  const width=1080,rowH=72,height=Math.max(1080,470+rows.length*rowH);
-  const canvas=document.createElement('canvas');canvas.width=width;canvas.height=height;
+  const width=1080;
+  const compact=rows.length>20;
+  const rowH=compact?60:72;
+  const rowFont=compact?27:32;
+  const titleFont=rows.length>35?50:58;
+  const top=55;
+  const cardX=55;
+  const cardW=width-110;
+  const headerBottom=310;
+  const rowsStart=350;
+  const totalGap=70;
+  const totalBlockH=125;
+  const bottomPad=55;
+  const contentBottom=rowsStart+(rows.length*rowH)+totalGap+totalBlockH;
+  const height=Math.max(650,contentBottom+bottomPad);
+
+  const canvas=document.createElement('canvas');
+  canvas.width=width;
+  canvas.height=height;
   const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#f3f3f5';ctx.fillRect(0,0,width,height);
-  ctx.fillStyle='#fff';drawRoundRect(ctx,55,55,width-110,height-110,38);ctx.fill();
-  ctx.fillStyle='#111';ctx.font='700 58px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText('Proyección del día',100,145);
-  ctx.fillStyle='#666';ctx.font='400 30px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText(projectionDateText(),100,195);
-  ctx.fillStyle='#777';ctx.font='700 28px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
-  ctx.textAlign='left';ctx.fillText('FILE',100,275);ctx.fillText('CANTIDAD',560,275);ctx.textAlign='right';ctx.fillText('TOTAL',930,275);
-  let y=335;
-  ctx.font='600 32px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
-  rows.forEach(x=>{
-    ctx.strokeStyle='#e4e4e7';ctx.lineWidth=2;ctx.beginPath();ctx.moveTo(100,y+30);ctx.lineTo(930,y+30);ctx.stroke();
-    ctx.fillStyle='#111';ctx.textAlign='left';ctx.fillText(x.file,100,y);ctx.fillText(x.qty,560,y);ctx.textAlign='right';ctx.fillText(money(x.amount),930,y);y+=rowH;
+  if(!ctx)throw new Error('No se pudo iniciar el lienzo de la imagen');
+
+  ctx.fillStyle='#f3f3f5';
+  ctx.fillRect(0,0,width,height);
+  ctx.fillStyle='#fff';
+  drawRoundRect(ctx,cardX,top,cardW,height-(top*2),38);
+  ctx.fill();
+
+  ctx.fillStyle='#111';
+  ctx.textAlign='left';
+  ctx.font='700 '+titleFont+'px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText('Proyección del día',100,145);
+  ctx.fillStyle='#666';
+  ctx.font='400 30px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText(projectionDateText(),100,195);
+
+  ctx.fillStyle='#777';
+  ctx.font='700 28px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.textAlign='left';ctx.fillText('FILE',100,275);
+  ctx.textAlign='center';ctx.fillText('CANTIDAD',650,275);
+  ctx.textAlign='right';ctx.fillText('TOTAL',930,275);
+  ctx.strokeStyle='#d9d9de';ctx.lineWidth=2;
+  ctx.beginPath();ctx.moveTo(100,headerBottom);ctx.lineTo(930,headerBottom);ctx.stroke();
+
+  let y=rowsStart;
+  ctx.font='600 '+rowFont+'px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  rows.forEach((x,index)=>{
+    ctx.fillStyle='#111';
+    ctx.textAlign='left';ctx.fillText(String(x.file),100,y);
+    ctx.textAlign='center';ctx.fillText(String(x.qty),650,y);
+    ctx.textAlign='right';ctx.fillText(money(x.amount),930,y);
+    if(index<rows.length-1){
+      ctx.strokeStyle='#e8e8ec';ctx.lineWidth=2;
+      ctx.beginPath();ctx.moveTo(100,y+Math.round(rowH*.43));ctx.lineTo(930,y+Math.round(rowH*.43));ctx.stroke();
+    }
+    y+=rowH;
   });
+
   const total=rows.reduce((acc,x)=>add(acc,x.amount),'0');
-  const totalY=Math.min(height-160,y+55);
-  ctx.strokeStyle='#111';ctx.lineWidth=4;ctx.beginPath();ctx.moveTo(100,totalY-50);ctx.lineTo(930,totalY-50);ctx.stroke();
-  ctx.fillStyle='#111';ctx.textAlign='left';ctx.font='700 40px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText('TOTAL DEL DÍA',100,totalY);
-  ctx.textAlign='right';ctx.font='800 58px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';ctx.fillText(money(total),930,totalY+5);
-  return await new Promise((resolve,reject)=>canvas.toBlob(b=>b?resolve(b):reject(new Error('No se pudo crear la imagen')),'image/png',1));
+  const totalLineY=y+25;
+  const totalY=totalLineY+72;
+  ctx.strokeStyle='#111';ctx.lineWidth=4;
+  ctx.beginPath();ctx.moveTo(100,totalLineY);ctx.lineTo(930,totalLineY);ctx.stroke();
+  ctx.fillStyle='#111';
+  ctx.textAlign='left';ctx.font='700 38px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText('TOTAL DEL DÍA',100,totalY);
+  ctx.textAlign='right';ctx.font='800 56px -apple-system,BlinkMacSystemFont,Segoe UI,sans-serif';
+  ctx.fillText(money(total),930,totalY+6);
+
+  return await new Promise((resolve,reject)=>canvas.toBlob(
+    b=>b?resolve(b):reject(new Error('No se pudo crear la imagen')),
+    'image/png',1
+  ));
 }
 async function shareProjectionImage(){
   try{
